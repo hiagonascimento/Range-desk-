@@ -1,0 +1,1605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+<title>Range Desk</title>
+<meta name="description" content="Intraday range analysis and volatility classification." />
+<meta name="theme-color" content="#10141A" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Range Desk" />
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180"><rect width="180" height="180" fill="%2310141A"/><rect x="24" y="72" width="33" height="36" fill="%233D8B87"/><rect x="57" y="72" width="33" height="36" fill="%236BA35C"/><rect x="90" y="72" width="33" height="36" fill="%23CE9A3C"/><rect x="123" y="72" width="33" height="36" fill="%23C0533C"/><rect x="98" y="58" width="3" height="64" fill="%23E4EBF2"/></svg>" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180"><rect width="180" height="180" fill="%2310141A"/><rect x="24" y="72" width="33" height="36" fill="%233D8B87"/><rect x="57" y="72" width="33" height="36" fill="%236BA35C"/><rect x="90" y="72" width="33" height="36" fill="%23CE9A3C"/><rect x="123" y="72" width="33" height="36" fill="%23C0533C"/><rect x="98" y="58" width="3" height="64" fill="%23E4EBF2"/></svg>" />
+<link rel="manifest" href='data:application/manifest+json,%7B%22name%22%3A%22Range%20Desk%22%2C%22short_name%22%3A%22Range%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%2310141A%22%2C%22theme_color%22%3A%22%2310141A%22%2C%22orientation%22%3A%22portrait%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%3Csvg%20xmlns%3D%5C%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%5C%22%20viewBox%3D%5C%220%200%20180%20180%5C%22%3E%3Crect%20width%3D%5C%22180%5C%22%20height%3D%5C%22180%5C%22%20fill%3D%5C%22%252310141A%5C%22%2F%3E%3Crect%20x%3D%5C%2224%5C%22%20y%3D%5C%2272%5C%22%20width%3D%5C%2233%5C%22%20height%3D%5C%2236%5C%22%20fill%3D%5C%22%25233D8B87%5C%22%2F%3E%3Crect%20x%3D%5C%2257%5C%22%20y%3D%5C%2272%5C%22%20width%3D%5C%2233%5C%22%20height%3D%5C%2236%5C%22%20fill%3D%5C%22%25236BA35C%5C%22%2F%3E%3Crect%20x%3D%5C%2290%5C%22%20y%3D%5C%2272%5C%22%20width%3D%5C%2233%5C%22%20height%3D%5C%2236%5C%22%20fill%3D%5C%22%2523CE9A3C%5C%22%2F%3E%3Crect%20x%3D%5C%22123%5C%22%20y%3D%5C%2272%5C%22%20width%3D%5C%2233%5C%22%20height%3D%5C%2236%5C%22%20fill%3D%5C%22%2523C0533C%5C%22%2F%3E%3Crect%20x%3D%5C%2298%5C%22%20y%3D%5C%2258%5C%22%20width%3D%5C%223%5C%22%20height%3D%5C%2264%5C%22%20fill%3D%5C%22%2523E4EBF2%5C%22%2F%3E%3C%2Fsvg%3E%22%2C%22sizes%22%3A%22any%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D' />
+<style>
+  html,body{margin:0;padding:0;background:#10141A;-webkit-text-size-adjust:100%;overscroll-behavior-y:none}
+  body{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  input{font-size:16px}
+  input:focus{border-color:#8FD3CB !important}
+  button:active{opacity:.7}
+  ::-webkit-scrollbar{height:6px;width:6px}
+  ::-webkit-scrollbar-thumb{background:#2A3440;border-radius:3px}
+  #boot{color:#7E8C9B;font:13px ui-monospace,Menlo,monospace;padding:28px;line-height:1.7}
+  @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div id="root"><div id="boot">Loading Range Desk…<br><span style="color:#56616E">If this stays, the React CDN is unreachable.</span></div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" crossorigin></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" crossorigin></script>
+<script>
+(function(){
+  if (window.storage) return;
+  // Standalone fallback: persist to localStorage when the host provides no
+  // storage API, so the log survives reloads in a normal browser tab.
+  var ok = (function(){ try { var k='__rd'; localStorage.setItem(k,'1'); localStorage.removeItem(k); return true; } catch(e){ return false; } })();
+  var mem = {};
+  window.storage = {
+    get: function(k){
+      var v = ok ? localStorage.getItem(k) : mem[k];
+      return (v===null||v===undefined) ? Promise.reject(new Error('not found')) : Promise.resolve({key:k,value:v});
+    },
+    set: function(k,v){ if(ok) localStorage.setItem(k,v); else mem[k]=v; return Promise.resolve({key:k,value:v}); },
+    delete: function(k){ if(ok) localStorage.removeItem(k); else delete mem[k]; return Promise.resolve({key:k,deleted:true}); },
+    list: function(){ return Promise.resolve({keys: ok ? Object.keys(localStorage) : Object.keys(mem)}); }
+  };
+})();
+</script>
+<script>
+(function(){
+  if (!window.React || !window.ReactDOM) {
+    document.getElementById('root').innerHTML =
+      '<div style="color:#C0533C;font:13px ui-monospace,monospace;padding:28px;line-height:1.8">'
+      + 'React failed to load from the CDN.<br>Check the network connection and reload.</div>';
+    return;
+  }
+  var useState = React.useState, useEffect = React.useEffect, useMemo = React.useMemo,
+      useCallback = React.useCallback, useRef = React.useRef;
+/* ============================================================
+   RANGE DESK — live intraday range analysis
+   Data: Polygon.io minute aggregates (includes extended hours)
+   Model calibrated on 1,254 SPY sessions (Aug 2021 – Aug 2026)
+   ============================================================ */
+
+const T = {
+  ink: "#10141A",
+  panel: "#171D25",
+  panelAlt: "#1C232C",
+  rule: "#2A3440",
+  ruleSoft: "#212934",
+  text: "#E4EBF2",
+  dim: "#7E8C9B",
+  dimmer: "#56616E",
+  calm: "#3D8B87",
+  normal: "#6BA35C",
+  agitated: "#CE9A3C",
+  wild: "#C0533C",
+  live: "#8FD3CB",
+  alert: "#C0533C"
+};
+const MONO = "ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace";
+const SANS = "'Helvetica Neue', Helvetica, Arial, system-ui, sans-serif";
+const THRESH = [0.6932, 0.9954, 1.4508];
+const BANDS = [{
+  key: "CALM",
+  label: "Calm",
+  color: T.calm
+}, {
+  key: "NORMAL",
+  label: "Normal",
+  color: T.normal
+}, {
+  key: "AGITATED",
+  label: "Agitated",
+  color: T.agitated
+}, {
+  key: "WILD",
+  label: "Wild",
+  color: T.wild
+}];
+const M_PREOPEN = {
+  a: 0.30366,
+  b: 0.40702,
+  c: 0.66514,
+  sd: 0.5626,
+  mae: 0.3843
+};
+const M_11AM = {
+  a: 0.1093,
+  b: 0.23898,
+  c: 0.29291,
+  d: 0.87845,
+  sd: 0.4833,
+  mae: 0.3149
+};
+const MEAN_RANGE = 1.1859;
+const OPEN_POSITION = 0.496;
+const SCALE_MAX = 2.6;
+
+/* OTM distance tables — never-touched basis, 5yr SPY (1,253 days).
+   Rows: estimate bands; values: % OTM needed for 85 / 90 / 95% no-touch. */
+const DIST_BANDS = [{
+  lo: 0,
+  hi: 0.7,
+  label: "<0.7%"
+}, {
+  lo: 0.7,
+  hi: 0.9,
+  label: "0.7–0.9%"
+}, {
+  lo: 0.9,
+  hi: 1.1,
+  label: "0.9–1.1%"
+}, {
+  lo: 1.1,
+  hi: 1.4,
+  label: "1.1–1.4%"
+}, {
+  lo: 1.4,
+  hi: 1.8,
+  label: "1.4–1.8%"
+}, {
+  lo: 1.8,
+  hi: 99,
+  label: ">1.8%"
+}];
+const OTM_TABLES = {
+  "946": {
+    call: [[0.52, 0.61, 0.72], [0.57, 0.64, 0.85], [0.79, 0.90, 1.15], [1.01, 1.16, 1.43], [1.28, 1.48, 1.70], [1.81, 2.00, 2.33]],
+    put: [[0.64, 0.79, 1.00], [0.86, 1.04, 1.26], [0.93, 1.14, 1.52], [1.19, 1.31, 1.77], [1.52, 1.69, 1.96], [1.95, 2.27, 2.53]]
+  },
+  "1201": {
+    call: [[0.40, 0.45, 0.64], [0.42, 0.47, 0.60], [0.59, 0.71, 0.93], [0.78, 0.88, 1.07], [0.92, 1.06, 1.26], [1.22, 1.48, 2.19]],
+    put: [[0.43, 0.56, 0.66], [0.56, 0.66, 0.96], [0.60, 0.73, 1.00], [0.78, 0.96, 1.25], [1.01, 1.21, 1.67], [1.41, 1.52, 1.95]]
+  }
+};
+const bandIndexOf = est => est == null ? -1 : DIST_BANDS.findIndex(b => est >= b.lo && est < b.hi);
+
+/* Data pulls run 15 minutes after each window closes, so a delayed feed
+   still returns the complete window. 9:45 captures premarket + prior day;
+   11:15 captures the 9:30–11:00 range. */
+const DEFAULT_KEY = "";
+const SLOTS = [{
+  at: 585,
+  label: "9:45",
+  note: "premarket + prior session"
+}, {
+  at: 675,
+  label: "11:15",
+  note: "adds the 9:30–11:00 range"
+}];
+const bandOf = p => p == null || !isFinite(p) ? null : p < THRESH[0] ? 0 : p < THRESH[1] ? 1 : p < THRESH[2] ? 2 : 3;
+function erf(x) {
+  const s = x < 0 ? -1 : 1;
+  x = Math.abs(x);
+  const t = 1 / (1 + 0.3275911 * x);
+  const y = 1 - ((((1.061405429 * t - 1.453152027) * t + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x);
+  return s * y;
+}
+const normCdf = (x, mu, sd) => 0.5 * (1 + erf((x - mu) / (sd * Math.SQRT2)));
+function bandProbabilities(est, sd) {
+  if (est == null || !isFinite(est)) return null;
+  const c = THRESH.map(t => normCdf(t, est, sd));
+  const raw = [c[0], c[1] - c[0], c[2] - c[1], 1 - c[2]].map(v => Math.max(0, v));
+  const tot = raw.reduce((a, b) => a + b, 0) || 1;
+  return raw.map(v => v / tot);
+}
+const fmtPx = v => v == null ? "—" : v.toFixed(2);
+
+/* ---------- Eastern-time helpers (DST-safe via Intl) ---------- */
+const etParts = (() => {
+  const f = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    weekday: "short",
+    hour12: false
+  });
+  const DOW = {
+    Sun: 0,
+    Mon: 1,
+    Tue: 2,
+    Wed: 3,
+    Thu: 4,
+    Fri: 5,
+    Sat: 6
+  };
+  return ms => {
+    const p = {};
+    for (const {
+      type,
+      value
+    } of f.formatToParts(new Date(ms))) p[type] = value;
+    let hh = parseInt(p.hour, 10);
+    if (hh === 24) hh = 0;
+    return {
+      date: `${p.year}-${p.month}-${p.day}`,
+      minutes: hh * 60 + parseInt(p.minute, 10),
+      hh,
+      mm: parseInt(p.minute, 10),
+      dow: DOW[p.weekday] ?? 1
+    };
+  };
+})();
+const clockET = ms => {
+  const {
+    hh,
+    mm
+  } = etParts(ms);
+  return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
+};
+
+/* Aggregate a list of bars into {open, high, low, close, lastTs} */
+function agg(bars) {
+  if (!bars || bars.length === 0) return null;
+  let high = -Infinity,
+    low = Infinity;
+  for (const b of bars) {
+    if (b.h > high) high = b.h;
+    if (b.l < low) low = b.l;
+  }
+  return {
+    open: bars[0].o,
+    close: bars[bars.length - 1].c,
+    high,
+    low,
+    lastTs: bars[bars.length - 1].t,
+    count: bars.length
+  };
+}
+
+/* ---------------- UI pieces ---------------- */
+function BandTag({
+  idx,
+  size = "md"
+}) {
+  if (idx == null) return /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: T.dimmer,
+      fontFamily: MONO
+    }
+  }, "—");
+  const b = BANDS[idx];
+  return /*#__PURE__*/React.createElement("span", {
+    style: {
+      display: "inline-block",
+      padding: size === "lg" ? "5px 12px" : "3px 8px",
+      borderRadius: 2,
+      background: b.color + "22",
+      border: `1px solid ${b.color}66`,
+      color: b.color,
+      fontFamily: SANS,
+      fontSize: size === "lg" ? 12 : 9.5,
+      letterSpacing: "0.16em",
+      textTransform: "uppercase",
+      fontWeight: 600
+    }
+  }, b.label);
+}
+function Readout({
+  label,
+  pct,
+  sub,
+  hiLo
+}) {
+  const idx = bandOf(pct);
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: T.panel,
+      border: `1px solid ${T.ruleSoft}`,
+      borderRadius: 4,
+      padding: "14px 15px",
+      flex: "1 1 165px",
+      minWidth: 0
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: SANS,
+      fontSize: 9,
+      letterSpacing: "0.16em",
+      textTransform: "uppercase",
+      color: T.dimmer,
+      marginBottom: 9
+    }
+  }, label), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 26,
+      color: idx == null ? T.dimmer : BANDS[idx].color,
+      lineHeight: 1,
+      marginBottom: 10,
+      letterSpacing: "-0.02em"
+    }
+  }, pct == null ? "—" : pct.toFixed(3), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 13,
+      color: T.dim
+    }
+  }, "%")), /*#__PURE__*/React.createElement(BandTag, {
+    idx: idx
+  }), hiLo && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 10.5,
+      color: T.dim,
+      marginTop: 9
+    }
+  }, fmtPx(hiLo.low), " – ", fmtPx(hiLo.high)), sub && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 10,
+      color: T.dimmer,
+      marginTop: 4
+    }
+  }, sub));
+}
+function Spectrum({
+  markers
+}) {
+  const stops = [0, ...THRESH, SCALE_MAX];
+  const pos = v => Math.max(0, Math.min(100, v / SCALE_MAX * 100));
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 4
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      height: 34,
+      borderRadius: 3,
+      overflow: "hidden"
+    }
+  }, BANDS.map((b, i) => /*#__PURE__*/React.createElement("div", {
+    key: b.key,
+    style: {
+      width: (stops[i + 1] - stops[i]) / SCALE_MAX * 100 + "%",
+      background: `linear-gradient(180deg, ${b.color}44, ${b.color}18)`,
+      borderRight: i < 3 ? `1px solid ${T.ink}` : "none",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: SANS,
+      fontSize: 8.5,
+      letterSpacing: "0.18em",
+      textTransform: "uppercase",
+      color: b.color
+    }
+  }, b.label)))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "relative",
+      height: 15
+    }
+  }, THRESH.map(t => /*#__PURE__*/React.createElement("div", {
+    key: t,
+    style: {
+      position: "absolute",
+      left: pos(t) + "%",
+      transform: "translateX(-50%)",
+      fontFamily: MONO,
+      fontSize: 9,
+      color: T.dimmer,
+      paddingTop: 2
+    }
+  }, t.toFixed(2)))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "relative",
+      height: markers.length ? 26 * markers.length + 4 : 0
+    }
+  }, markers.map((m, i) => /*#__PURE__*/React.createElement("div", {
+    key: m.label,
+    style: {
+      position: "absolute",
+      top: i * 26,
+      left: 0,
+      right: 0,
+      height: 24
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "absolute",
+      left: pos(m.value) + "%",
+      width: 2,
+      height: 24,
+      background: m.color,
+      transform: "translateX(-1px)"
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "absolute",
+      left: pos(m.value) + "%",
+      top: 3,
+      transform: pos(m.value) > 70 ? "translateX(calc(-100% - 8px))" : "translateX(8px)",
+      fontFamily: SANS,
+      fontSize: 9.5,
+      letterSpacing: "0.12em",
+      textTransform: "uppercase",
+      color: m.color,
+      whiteSpace: "nowrap"
+    }
+  }, m.label, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: MONO,
+      color: T.dim,
+      marginLeft: 7,
+      letterSpacing: 0
+    }
+  }, m.value.toFixed(3), "%"))))));
+}
+
+/* ============================================================ */
+function RangeDeskLive() {
+  const [apiKey, setApiKey] = useState(DEFAULT_KEY);
+  const [keyDraft, setKeyDraft] = useState(DEFAULT_KEY);
+  const [ticker, setTicker] = useState("SPY");
+  const [tickerDraft, setTickerDraft] = useState("SPY");
+  const [showSettings, setShowSettings] = useState(false);
+  const [data, setData] = useState(null); // { prior, pre, rth, to11, asOf }
+  const [status, setStatus] = useState("idle"); // idle | loading | ok | error
+  const [errMsg, setErrMsg] = useState("");
+  const [diag, setDiag] = useState(null);
+  const [elapsed, setElapsed] = useState(0);
+  const [scheduled, setScheduled] = useState(true);
+  const [nowMin, setNowMin] = useState(() => etParts(Date.now()).minutes);
+  const [distEntry, setDistEntry] = useState("1201");
+  const [distSide, setDistSide] = useState("call");
+  const [history, setHistory] = useState([]);
+  const [note, setNote] = useState("");
+  const timerRef = useRef(null);
+  const firedSlotsRef = useRef(new Set()); // "YYYY-MM-DD#9:45" tags already fired
+  const inflightRef = useRef(null); // AbortController of the request in flight
+  const hasDataRef = useRef(false);
+
+  /* ---- load saved key + history ---- */
+  useEffect(() => {
+    (async () => {
+      try {
+        const k = await window.storage.get("rangedesk:key");
+        if (k && k.value) {
+          setApiKey(k.value);
+          setKeyDraft(k.value);
+        } else if (!DEFAULT_KEY) {
+          setShowSettings(true);
+        }
+      } catch (e) {
+        if (!DEFAULT_KEY) setShowSettings(true);
+      }
+      try {
+        const t = await window.storage.get("rangedesk:ticker");
+        if (t && t.value) {
+          setTicker(t.value);
+          setTickerDraft(t.value);
+        }
+      } catch (e) {}
+      try {
+        const h = await window.storage.get("rangedesk:history");
+        if (h && h.value) setHistory(JSON.parse(h.value));
+      } catch (e) {}
+    })();
+  }, []);
+
+  /* ---- fetch and slice minute bars ---- */
+  const fetchData = useCallback(async (key, sym) => {
+    if (!key) {
+      setStatus("error");
+      setErrMsg("Add a Polygon API key in Settings to pull live data.");
+      return;
+    }
+    setStatus("loading");
+    setErrMsg("");
+    setDiag(null);
+    const t0 = Date.now();
+    const log = [];
+    // cancel any request already in flight so responses can't interleave
+    if (inflightRef.current) {
+      try {
+        inflightRef.current.abort();
+      } catch (e) {}
+    }
+    const ctrl = new AbortController();
+    inflightRef.current = ctrl;
+    try {
+      const now = Date.now();
+      // 6 calendar days reaches the prior session even across a long
+      // weekend, and keeps the response far smaller than 12 days did.
+      const from = new Date(now - 6 * 86400000).toISOString().slice(0, 10);
+      const to = new Date(now + 86400000).toISOString().slice(0, 10);
+      const url = `https://api.polygon.io/v2/aggs/ticker/${encodeURIComponent(sym)}` + `/range/1/minute/${from}/${to}?adjusted=true&sort=asc&limit=50000&apiKey=${encodeURIComponent(key)}`;
+      log.push(`GET .../${sym}/range/1/minute/${from}/${to}`);
+      log.push(`key ...${key.slice(-4)}`);
+      const killer = setTimeout(() => ctrl.abort(), 20000);
+      let res;
+      try {
+        res = await fetch(url, {
+          signal: ctrl.signal,
+          mode: "cors"
+        });
+        clearTimeout(killer);
+      } catch (netErr) {
+        clearTimeout(killer);
+        if (ctrl !== inflightRef.current) return; // superseded by a newer request
+        const aborted = netErr.name === "AbortError";
+        log.push(aborted ? "aborted: no response in 20s" : `network error: ${netErr.message}`);
+        setDiag(log);
+        throw new Error(aborted ? "No response in 20 seconds — the request is stalling before it reaches polygon.io." : "The request never reached polygon.io — a browser network or CORS block, not a bad key.");
+      }
+      if (ctrl !== inflightRef.current) return; // a newer request took over
+      log.push(`HTTP ${res.status} ${res.statusText || ""}`.trim() + ` · ${Date.now() - t0}ms`);
+      if (!res.ok) {
+        const body = await res.text();
+        log.push(`body: ${body.slice(0, 200)}`);
+        setDiag(log);
+        if (res.status === 401 || res.status === 403) throw new Error("Key rejected (401/403). Check the key and that your plan covers minute aggregates.");
+        if (res.status === 429) throw new Error("Rate limited (429). Free tier allows 5 calls/minute.");
+        throw new Error(`HTTP ${res.status}. ${body.slice(0, 140)}`);
+      }
+      const j = await res.json();
+      log.push(`status field: ${j.status || "—"} · results: ${j.resultsCount ?? (j.results ? j.results.length : 0)}`);
+      if (!j.results || j.results.length === 0) {
+        setDiag(log);
+        throw new Error(`No bars returned (API said "${j.status || "?"}"). Free plans often exclude recent intraday bars — try Manual entry.`);
+      }
+
+      // group bars by Eastern date
+      const byDate = new Map();
+      for (const b of j.results) {
+        const {
+          date,
+          minutes
+        } = etParts(b.t);
+        if (!byDate.has(date)) byDate.set(date, []);
+        byDate.get(date).push({
+          ...b,
+          m: minutes
+        });
+      }
+      const dates = [...byDate.keys()].sort();
+      const todayET = etParts(Date.now()).date;
+
+      // "today" = most recent session present (handles pre-open and weekends)
+      const curDate = dates[dates.length - 1];
+      const curBars = byDate.get(curDate) || [];
+      // prior session = the session before the current one
+      const priorDate = dates[dates.length - 2];
+      const priorBars = byDate.get(priorDate) || [];
+      const priorRTH = priorBars.filter(b => b.m >= 570 && b.m < 960);
+      const preBars = curBars.filter(b => b.m >= 240 && b.m < 570);
+      const rthBars = curBars.filter(b => b.m >= 570 && b.m < 960);
+      const to11Bars = curBars.filter(b => b.m >= 570 && b.m <= 660);
+      log.push(`sessions found: ${dates.length} (${dates[0]} … ${curDate})`);
+      log.push(`${curDate}: premarket ${preBars.length} bars · RTH ${rthBars.length} · to-11 ${to11Bars.length}`);
+      log.push(`${priorDate || "—"}: prior RTH ${priorRTH.length} bars`);
+      if (preBars.length === 0) log.push("NOTE: zero premarket bars — plan may exclude extended hours.");
+      setDiag(log);
+      setData({
+        curDate,
+        priorDate,
+        isLive: curDate === todayET,
+        prior: agg(priorRTH),
+        pre: agg(preBars),
+        rth: agg(rthBars),
+        to11: agg(to11Bars),
+        asOf: Date.now(),
+        lastBarTs: (curBars[curBars.length - 1] || j.results[j.results.length - 1]).t
+      });
+      hasDataRef.current = true;
+      setStatus("ok");
+    } catch (e) {
+      setStatus("error");
+      setErrMsg(String(e.message || e));
+      // Only push the user to manual entry when there is nothing on
+      // screen; a transient failure (rate limit, timeout) should not
+      // hide data that already loaded.
+      if (!hasDataRef.current) {
+        setUseManual(true);
+        setShowSettings(false);
+      }
+    } finally {
+      if (inflightRef.current && inflightRef.current.signal.aborted === false) {
+        /* keep controller for potential reuse-abort */
+      }
+    }
+  }, []);
+
+  /* elapsed counter so a stalled request is visible, not silent */
+  useEffect(() => {
+    if (status !== "loading") {
+      setElapsed(0);
+      return;
+    }
+    const t = setInterval(() => setElapsed(e => e + 1), 1000);
+    return () => clearInterval(t);
+  }, [status]);
+
+  /* ---- single orchestrator ----
+     One fetch when the key/ticker becomes available or changes. After
+     that, scheduled slot pulls at 9:45 and 11:15 ET on weekdays only.
+     A slot that has already fired today is skipped, and the initial
+     fetch marks any already-passed slots as fired so loading the page
+     at 10:00 does not double-fetch. */
+  useEffect(() => {
+    if (!apiKey) return;
+    const {
+      date,
+      minutes,
+      dow
+    } = etParts(Date.now());
+    for (const s of SLOTS) if (minutes >= s.at) firedSlotsRef.current.add(`${date}#${s.label}`);
+    fetchData(apiKey, ticker);
+  }, [apiKey, ticker, fetchData]);
+  useEffect(() => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    if (!scheduled || !apiKey) return;
+    const tick = () => {
+      const p = etParts(Date.now());
+      setNowMin(p.minutes);
+      if (p.dow === 0 || p.dow === 6) return; // markets closed weekends
+      for (const s of SLOTS) {
+        const tag = `${p.date}#${s.label}`;
+        if (p.minutes >= s.at && !firedSlotsRef.current.has(tag)) {
+          firedSlotsRef.current.add(tag);
+          fetchData(apiKey, ticker);
+          return;
+        }
+      }
+    };
+    timerRef.current = setInterval(tick, 30000);
+    return () => timerRef.current && clearInterval(timerRef.current);
+  }, [scheduled, apiKey, ticker, fetchData]);
+
+  /* next scheduled pull, for the header — nowMin ticks via the scheduler */
+  const nextSlot = useMemo(() => SLOTS.find(s => nowMin < s.at) || null, [nowMin]);
+
+  /* ---- manual override ---- */
+  const [manual, setManual] = useState({
+    pO: "",
+    pH: "",
+    pL: "",
+    mH: "",
+    mL: "",
+    tO: "",
+    eH: "",
+    eL: ""
+  });
+  const [useManual, setUseManual] = useState(false);
+  const mnum = v => {
+    const n = parseFloat(v);
+    return isFinite(n) ? n : null;
+  };
+
+  /* ---- derived ranges ---- */
+  const prior = useMemo(() => {
+    if (useManual) {
+      const o = mnum(manual.pO),
+        h = mnum(manual.pH),
+        l = mnum(manual.pL);
+      return o && h && l && h > l ? {
+        open: o,
+        high: h,
+        low: l
+      } : null;
+    }
+    return data?.prior || null;
+  }, [useManual, manual, data]);
+  const preM = useMemo(() => {
+    if (useManual) {
+      const h = mnum(manual.mH),
+        l = mnum(manual.mL);
+      return h && l && h >= l ? {
+        high: h,
+        low: l
+      } : null;
+    }
+    return data?.pre || null;
+  }, [useManual, manual, data]);
+  const todayOpen = useMemo(() => {
+    if (useManual) return mnum(manual.tO);
+    return data?.rth?.open ?? null;
+  }, [useManual, manual, data]);
+  const to11 = useMemo(() => {
+    if (useManual) {
+      const h = mnum(manual.eH),
+        l = mnum(manual.eL);
+      return h && l && h >= l ? {
+        high: h,
+        low: l
+      } : null;
+    }
+    // only count it once 11:00 has actually passed
+    if (!data?.to11) return null;
+    const nowM = etParts(Date.now()).minutes;
+    if (data.isLive && nowM < 660) return null;
+    return data.to11;
+  }, [useManual, manual, data]);
+  const priorRange = prior ? (prior.high - prior.low) / prior.open * 100 : null;
+  const preDenom = useMemo(() => {
+    if (todayOpen) return {
+      v: todayOpen,
+      src: "today's open"
+    };
+    if (preM) return {
+      v: (preM.high + preM.low) / 2,
+      src: "premarket mid"
+    };
+    if (prior) return {
+      v: prior.close ?? (prior.high + prior.low) / 2,
+      src: "prior close"
+    };
+    return {
+      v: null,
+      src: null
+    };
+  }, [todayOpen, preM, prior]);
+  const preRange = preM && preDenom.v ? (preM.high - preM.low) / preDenom.v * 100 : null;
+  const to11Range = to11 && (todayOpen || preDenom.v) ? (to11.high - to11.low) / (todayOpen || preDenom.v) * 100 : null;
+  const model = useMemo(() => {
+    if (priorRange == null || preRange == null) return null;
+    if (to11Range != null) {
+      const m = M_11AM;
+      return {
+        est: m.a + m.b * priorRange + m.c * preRange + m.d * to11Range,
+        sd: m.sd,
+        mae: m.mae,
+        stage: "11:00 update"
+      };
+    }
+    const m = M_PREOPEN;
+    return {
+      est: m.a + m.b * priorRange + m.c * preRange,
+      sd: m.sd,
+      mae: m.mae,
+      stage: "Pre-open"
+    };
+  }, [priorRange, preRange, to11Range]);
+  const probs = useMemo(() => model ? bandProbabilities(model.est, model.sd) : null, [model]);
+  const projection = useMemo(() => {
+    if (!model || !todayOpen) return null;
+    const dollars = todayOpen * model.est / 100;
+    const lo = todayOpen - dollars * OPEN_POSITION;
+    return {
+      dollars,
+      lo,
+      hi: lo + dollars,
+      spanLow: todayOpen * Math.max(0.05, model.est - model.mae) / 100,
+      spanHigh: todayOpen * (model.est + model.mae) / 100
+    };
+  }, [model, todayOpen]);
+  const liveRange = useMemo(() => {
+    if (!data?.rth || !data.rth.open) return null;
+    return (data.rth.high - data.rth.low) / data.rth.open * 100;
+  }, [data]);
+  const markers = useMemo(() => {
+    const out = [];
+    if (priorRange != null) out.push({
+      label: "Yesterday",
+      value: priorRange,
+      color: T.dim
+    });
+    if (model) out.push({
+      label: "Today est.",
+      value: model.est,
+      color: T.live
+    });
+    if (liveRange != null) out.push({
+      label: "So far",
+      value: liveRange,
+      color: T.text
+    });
+    return out;
+  }, [priorRange, model, liveRange]);
+
+  /* ---- persistence ---- */
+  async function saveKey() {
+    const k = keyDraft.trim();
+    const t = tickerDraft.trim().toUpperCase() || "SPY";
+    setApiKey(k);
+    setTicker(t);
+    try {
+      await window.storage.set("rangedesk:key", k);
+      await window.storage.set("rangedesk:ticker", t);
+      setNote("Settings saved.");
+    } catch (e) {
+      setNote("Saved for this session only.");
+    }
+    setShowSettings(false);
+    setTimeout(() => setNote(""), 3000);
+  }
+  async function saveToday() {
+    if (!model) {
+      setNote("Need yesterday's and premarket levels first.");
+      setTimeout(() => setNote(""), 3000);
+      return;
+    }
+    const entry = {
+      date: data?.curDate || new Date().toISOString().slice(0, 10),
+      ticker,
+      priorRange: priorRange != null ? +priorRange.toFixed(3) : null,
+      preRange: preRange != null ? +preRange.toFixed(3) : null,
+      to11Range: to11Range != null ? +to11Range.toFixed(3) : null,
+      est: +model.est.toFixed(3),
+      actual: liveRange != null ? +liveRange.toFixed(3) : null,
+      band: bandOf(model.est)
+    };
+    const next = [entry, ...history.filter(h => !(h.date === entry.date && h.ticker === entry.ticker))].slice(0, 60);
+    setHistory(next);
+    try {
+      await window.storage.set("rangedesk:history", JSON.stringify(next));
+      setNote(`Logged ${entry.date}.`);
+    } catch (e) {
+      setNote("Shown but not saved — storage unavailable.");
+    }
+    setTimeout(() => setNote(""), 3000);
+  }
+  const recent = history.slice(0, 30);
+  const recentAvg = recent.length ? recent.reduce((a, b) => a + (b.actual ?? b.est ?? 0), 0) / recent.length : null;
+  const sectionLabel = {
+    fontFamily: SANS,
+    fontSize: 9.5,
+    letterSpacing: "0.22em",
+    textTransform: "uppercase",
+    color: T.dim,
+    marginBottom: 13,
+    display: "flex",
+    alignItems: "center",
+    gap: 12
+  };
+  const hairline = {
+    flex: 1,
+    height: 1,
+    background: T.ruleSoft
+  };
+  const btn = primary => ({
+    background: primary ? T.live : "transparent",
+    color: primary ? T.ink : T.dim,
+    border: primary ? "none" : `1px solid ${T.rule}`,
+    borderRadius: 3,
+    padding: "10px 18px",
+    fontFamily: SANS,
+    fontSize: 10.5,
+    letterSpacing: "0.16em",
+    textTransform: "uppercase",
+    fontWeight: primary ? 600 : 400,
+    cursor: "pointer"
+  });
+  const input = {
+    width: "100%",
+    background: T.ink,
+    border: `1px solid ${T.rule}`,
+    color: T.text,
+    fontFamily: MONO,
+    fontSize: 14,
+    padding: "9px 10px",
+    borderRadius: 3,
+    outline: "none",
+    boxSizing: "border-box"
+  };
+  const dataAge = data ? Math.round((Date.now() - data.lastBarTs) / 60000) : null;
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      minHeight: "100vh",
+      background: T.ink,
+      color: T.text,
+      fontFamily: SANS,
+      padding: "22px 16px 60px"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      maxWidth: 880,
+      margin: "0 auto"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "baseline",
+      paddingBottom: 14,
+      borderBottom: `1px solid ${T.rule}`,
+      marginBottom: 22,
+      flexWrap: "wrap",
+      gap: 10
+    }
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 19,
+      letterSpacing: "0.30em",
+      textTransform: "uppercase"
+    }
+  }, "Range Desk"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 10.5,
+      color: T.dimmer,
+      letterSpacing: "0.1em",
+      marginTop: 5
+    }
+  }, ticker, " · live feed · model on 1,254 sessions")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 10
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 7,
+      height: 7,
+      borderRadius: "50%",
+      background: status === "ok" ? T.live : status === "loading" ? T.agitated : T.alert
+    }
+  }), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 10.5,
+      color: T.dim
+    }
+  }, status === "ok" && data ? `last bar ${clockET(data.lastBarTs)} ET${dataAge > 2 ? ` · ${dataAge}m old` : ""}` : status === "loading" ? `fetching… ${elapsed}s` : status === "error" ? "no feed" : "idle", scheduled && nextSlot && /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: T.dimmer
+    }
+  }, " · next ", nextSlot.label)), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setShowSettings(s => !s),
+    style: {
+      ...btn(false),
+      padding: "7px 12px"
+    }
+  }, "Settings"))), showSettings && /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: T.panelAlt,
+      border: `1px solid ${T.rule}`,
+      borderRadius: 4,
+      padding: 18,
+      marginBottom: 22
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 9.5,
+      letterSpacing: "0.18em",
+      textTransform: "uppercase",
+      color: T.dimmer,
+      marginBottom: 14
+    }
+  }, "Data connection"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "2fr 1fr",
+      gap: 10,
+      marginBottom: 12
+    }
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 9,
+      letterSpacing: "0.14em",
+      color: T.dimmer,
+      marginBottom: 5
+    }
+  }, "POLYGON.IO API KEY"), /*#__PURE__*/React.createElement("input", {
+    type: "password",
+    value: keyDraft,
+    onChange: e => setKeyDraft(e.target.value),
+    placeholder: "paste key",
+    style: input
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 9,
+      letterSpacing: "0.14em",
+      color: T.dimmer,
+      marginBottom: 5
+    }
+  }, "SYMBOL"), /*#__PURE__*/React.createElement("input", {
+    value: tickerDraft,
+    onChange: e => setTickerDraft(e.target.value),
+    style: input
+  }))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 9,
+      flexWrap: "wrap",
+      alignItems: "center"
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: saveKey,
+    style: btn(true)
+  }, "Connect"), /*#__PURE__*/React.createElement("label", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 7,
+      fontSize: 11,
+      color: T.dim,
+      cursor: "pointer"
+    }
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "checkbox",
+    checked: scheduled,
+    onChange: e => setScheduled(e.target.checked)
+  }), "Pull at 9:45 and 11:15"), /*#__PURE__*/React.createElement("label", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 7,
+      fontSize: 11,
+      color: T.dim,
+      cursor: "pointer"
+    }
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "checkbox",
+    checked: useManual,
+    onChange: e => setUseManual(e.target.checked)
+  }), "Manual entry")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 10,
+      color: T.dimmer,
+      marginTop: 13,
+      lineHeight: 1.8
+    }
+  }, "Two pulls a day, each 15 minutes after its window closes, so a delayed feed still returns complete data. 9:45 reads premarket and the prior session; 11:15 adds the 9:30–11:00 range. That keeps the free tier sufficient — no real-time plan needed. The key is stored locally and sent only to polygon.io.")), status === "error" && /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: T.alert + "18",
+      border: `1px solid ${T.alert}55`,
+      borderRadius: 4,
+      padding: "13px 15px",
+      marginBottom: 22,
+      fontSize: 12.5,
+      color: T.text,
+      lineHeight: 1.6
+    }
+  }, errMsg, /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 8,
+      fontSize: 11.5,
+      color: T.dim
+    }
+  }, "Manual entry is switched on below so you can still work.")), status === "ok" && data && !data.isLive && /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: T.agitated + "14",
+      border: `1px solid ${T.agitated}44`,
+      borderRadius: 4,
+      padding: "12px 15px",
+      marginBottom: 22,
+      fontSize: 12,
+      color: T.dim,
+      lineHeight: 1.6
+    }
+  }, "The feed has no bars for today yet — showing the most recent session,", " ", /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: T.text,
+      fontFamily: MONO
+    }
+  }, data.curDate), ". On a delayed plan today's premarket appears a little after it completes; hit Refresh after 9:45."), diag && /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: T.ink,
+      border: `1px solid ${T.ruleSoft}`,
+      borderRadius: 4,
+      padding: "12px 14px",
+      marginBottom: 22
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 8.5,
+      letterSpacing: "0.18em",
+      textTransform: "uppercase",
+      color: T.dimmer,
+      marginBottom: 8
+    }
+  }, "Request trace"), diag.map((line, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    style: {
+      fontFamily: MONO,
+      fontSize: 10.5,
+      color: line.startsWith("NOTE") || line.includes("error") ? T.agitated : T.dim,
+      lineHeight: 1.8,
+      wordBreak: "break-all"
+    }
+  }, line))), useManual && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: 26
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: sectionLabel
+  }, /*#__PURE__*/React.createElement("span", null, "Manual levels"), /*#__PURE__*/React.createElement("div", {
+    style: hairline
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gap: 10
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "repeat(3,1fr)",
+      gap: 8
+    }
+  }, [["pO", "Prior open"], ["pH", "Prior high"], ["pL", "Prior low"]].map(([k, l]) => /*#__PURE__*/React.createElement("div", {
+    key: k
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 8.5,
+      letterSpacing: "0.14em",
+      color: T.dimmer,
+      marginBottom: 4,
+      textTransform: "uppercase"
+    }
+  }, l), /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    step: "0.01",
+    value: manual[k],
+    onChange: e => setManual({
+      ...manual,
+      [k]: e.target.value
+    }),
+    style: input
+  })))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "repeat(3,1fr)",
+      gap: 8
+    }
+  }, [["mH", "Premkt high"], ["mL", "Premkt low"], ["tO", "Today open"]].map(([k, l]) => /*#__PURE__*/React.createElement("div", {
+    key: k
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 8.5,
+      letterSpacing: "0.14em",
+      color: T.dimmer,
+      marginBottom: 4,
+      textTransform: "uppercase"
+    }
+  }, l), /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    step: "0.01",
+    value: manual[k],
+    onChange: e => setManual({
+      ...manual,
+      [k]: e.target.value
+    }),
+    style: input
+  })))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "repeat(2,1fr)",
+      gap: 8
+    }
+  }, [["eH", "High to 11:00"], ["eL", "Low to 11:00"]].map(([k, l]) => /*#__PURE__*/React.createElement("div", {
+    key: k
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 8.5,
+      letterSpacing: "0.14em",
+      color: T.dimmer,
+      marginBottom: 4,
+      textTransform: "uppercase"
+    }
+  }, l), /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    step: "0.01",
+    value: manual[k],
+    onChange: e => setManual({
+      ...manual,
+      [k]: e.target.value
+    }),
+    style: input
+  })))))), /*#__PURE__*/React.createElement("div", {
+    style: sectionLabel
+  }, /*#__PURE__*/React.createElement("span", null, "Measured"), /*#__PURE__*/React.createElement("div", {
+    style: hairline
+  }), data && !useManual && /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 10,
+      color: T.dimmer,
+      letterSpacing: 0
+    }
+  }, data.priorDate, " → ", data.curDate)), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 10,
+      flexWrap: "wrap",
+      marginBottom: 28
+    }
+  }, /*#__PURE__*/React.createElement(Readout, {
+    label: "Yesterday",
+    pct: priorRange,
+    hiLo: prior
+  }), /*#__PURE__*/React.createElement(Readout, {
+    label: "Premarket 4:00–9:29",
+    pct: preRange,
+    hiLo: preM,
+    sub: preDenom.src ? `vs ${preDenom.src}` : null
+  }), /*#__PURE__*/React.createElement(Readout, {
+    label: "To 11:00",
+    pct: to11Range,
+    hiLo: to11
+  }), /*#__PURE__*/React.createElement(Readout, {
+    label: "Session so far",
+    pct: liveRange,
+    hiLo: data?.rth
+  })), /*#__PURE__*/React.createElement("div", {
+    style: sectionLabel
+  }, /*#__PURE__*/React.createElement("span", null, "Today's estimate"), /*#__PURE__*/React.createElement("div", {
+    style: hairline
+  }), model && /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 10,
+      color: T.dimmer,
+      letterSpacing: 0
+    }
+  }, model.stage)), /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: T.panel,
+      border: `1px solid ${T.ruleSoft}`,
+      borderRadius: 4,
+      padding: "20px 18px",
+      marginBottom: 14
+    }
+  }, !model ? /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: T.dimmer,
+      fontSize: 13,
+      padding: "16px 0",
+      textAlign: "center",
+      lineHeight: 1.7
+    }
+  }, status === "ok" ? "Waiting on premarket bars. Before 4:00 ET there is nothing to measure yet." : "Connect a data key, or switch on Manual entry in Settings.") : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "baseline",
+      gap: 16,
+      flexWrap: "wrap",
+      marginBottom: 20
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 44,
+      lineHeight: 1,
+      color: BANDS[bandOf(model.est)].color,
+      letterSpacing: "-0.03em"
+    }
+  }, model.est.toFixed(3), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 19,
+      color: T.dim
+    }
+  }, "%")), /*#__PURE__*/React.createElement(BandTag, {
+    idx: bandOf(model.est),
+    size: "lg"
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 10.5,
+      color: T.dimmer
+    }
+  }, "± ", model.mae.toFixed(2), " typical · 5-yr mean ", MEAN_RANGE.toFixed(2), "%")), /*#__PURE__*/React.createElement(Spectrum, {
+    markers: markers
+  }), probs && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 22
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 9,
+      letterSpacing: "0.18em",
+      textTransform: "uppercase",
+      color: T.dimmer,
+      marginBottom: 10
+    }
+  }, "Where today lands"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 6
+    }
+  }, BANDS.map((b, i) => /*#__PURE__*/React.createElement("div", {
+    key: b.key,
+    style: {
+      flex: 1
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      height: 5,
+      background: b.color,
+      opacity: 0.25 + probs[i] * 0.75,
+      borderRadius: 1,
+      marginBottom: 7
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 15,
+      color: b.color
+    }
+  }, Math.round(probs[i] * 100), "%"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 8.5,
+      letterSpacing: "0.13em",
+      textTransform: "uppercase",
+      color: T.dimmer,
+      marginTop: 3
+    }
+  }, b.label))))))), model && /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: T.panelAlt,
+      border: `1px solid ${T.ruleSoft}`,
+      borderRadius: 4,
+      padding: 18,
+      marginBottom: 26
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 9,
+      letterSpacing: "0.18em",
+      textTransform: "uppercase",
+      color: T.dimmer,
+      marginBottom: 14
+    }
+  }, "Projected levels"), !projection ? /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: T.dimmer,
+      fontSize: 12.5
+    }
+  }, "Levels appear once the 9:30 open prints.") : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 26,
+      flexWrap: "wrap"
+    }
+  }, [["HIGH", fmtPx(projection.hi), T.text], ["LOW", fmtPx(projection.lo), T.text], ["SPAN", "$" + projection.dollars.toFixed(2), T.live]].map(([l, v, c]) => /*#__PURE__*/React.createElement("div", {
+    key: l
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 9,
+      letterSpacing: "0.14em",
+      color: T.dimmer,
+      marginBottom: 5
+    }
+  }, l), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 23,
+      color: c
+    }
+  }, v)))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 10.5,
+      color: T.dimmer,
+      marginTop: 14,
+      lineHeight: 1.7
+    }
+  }, "Span could reasonably run $", projection.spanLow.toFixed(2), "–$", projection.spanHigh.toFixed(2), ". Levels assume the open sits mid-range, true on average but wide day to day."))), /*#__PURE__*/React.createElement("div", {
+    style: sectionLabel
+  }, /*#__PURE__*/React.createElement("span", null, "Strike distances"), /*#__PURE__*/React.createElement("div", {
+    style: hairline
+  }), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 10,
+      color: T.dimmer,
+      letterSpacing: 0
+    }
+  }, "never-touched basis")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: T.panel,
+      border: `1px solid ${T.ruleSoft}`,
+      borderRadius: 4,
+      padding: "16px 15px",
+      marginBottom: 30
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8,
+      marginBottom: 14,
+      flexWrap: "wrap"
+    }
+  }, [["946", "9:46 entry"], ["1201", "12:01 entry"]].map(([k, l]) => /*#__PURE__*/React.createElement("button", {
+    key: k,
+    onClick: () => setDistEntry(k),
+    style: {
+      ...btn(distEntry === k),
+      padding: "8px 14px",
+      fontSize: 10
+    }
+  }, l)), /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 10
+    }
+  }), [["call", "Calls · above spot"], ["put", "Puts · below spot"]].map(([k, l]) => /*#__PURE__*/React.createElement("button", {
+    key: k,
+    onClick: () => setDistSide(k),
+    style: {
+      ...btn(distSide === k),
+      padding: "8px 14px",
+      fontSize: 10
+    }
+  }, l))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      overflowX: "auto"
+    }
+  }, /*#__PURE__*/React.createElement("table", {
+    style: {
+      width: "100%",
+      borderCollapse: "collapse",
+      minWidth: 380
+    }
+  }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, ["Est. range", "85% safe", "90% safe", "95% safe"].map((h, i) => /*#__PURE__*/React.createElement("th", {
+    key: h,
+    style: {
+      textAlign: i === 0 ? "left" : "right",
+      fontFamily: SANS,
+      fontSize: 8.5,
+      letterSpacing: "0.16em",
+      textTransform: "uppercase",
+      color: T.dimmer,
+      padding: "9px 12px",
+      borderBottom: `1px solid ${T.ruleSoft}`,
+      fontWeight: 500
+    }
+  }, h)))), /*#__PURE__*/React.createElement("tbody", null, DIST_BANDS.map((b, i) => {
+    const row = OTM_TABLES[distEntry][distSide][i];
+    const active = model && bandIndexOf(model.est) === i;
+    return /*#__PURE__*/React.createElement("tr", {
+      key: b.label,
+      style: {
+        background: active ? T.live + "14" : "transparent"
+      }
+    }, /*#__PURE__*/React.createElement("td", {
+      style: {
+        fontFamily: MONO,
+        fontSize: 11.5,
+        color: active ? T.live : T.dim,
+        padding: "9px 12px",
+        borderBottom: `1px solid ${T.ruleSoft}`,
+        whiteSpace: "nowrap"
+      }
+    }, active ? "▸ " : "", b.label), row.map((v, j) => /*#__PURE__*/React.createElement("td", {
+      key: j,
+      style: {
+        fontFamily: MONO,
+        fontSize: 12,
+        color: active ? T.text : T.dim,
+        textAlign: "right",
+        padding: "9px 12px",
+        borderBottom: `1px solid ${T.ruleSoft}`,
+        whiteSpace: "nowrap"
+      }
+    }, v.toFixed(2), "%", active && todayOpen ? /*#__PURE__*/React.createElement("span", {
+      style: {
+        color: T.dimmer,
+        marginLeft: 6,
+        fontSize: 10.5
+      }
+    }, (distSide === "call" ? todayOpen * (1 + v / 100) : todayOpen * (1 - v / 100)).toFixed(0)) : null)));
+  })))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 10,
+      color: T.dimmer,
+      marginTop: 12,
+      lineHeight: 1.8
+    }
+  }, "% OTM from the entry-time price so the strike is never traded through. 90% safe ≈ tagged one day in ten. Highlighted row follows today's estimate", todayOpen ? "; small figures are strike levels off today's open" : "", ". Puts need more room than calls on quiet days — downside moves spike harder. Fitted on the same 5 years as the model.")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 9,
+      marginBottom: 30,
+      flexWrap: "wrap",
+      alignItems: "center"
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => fetchData(apiKey, ticker),
+    style: btn(false)
+  }, "Refresh now"), /*#__PURE__*/React.createElement("button", {
+    onClick: saveToday,
+    style: btn(true)
+  }, "Log session"), note && /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 11,
+      color: T.live
+    }
+  }, note)), /*#__PURE__*/React.createElement("div", {
+    style: sectionLabel
+  }, /*#__PURE__*/React.createElement("span", null, "Log"), /*#__PURE__*/React.createElement("div", {
+    style: hairline
+  }), recentAvg != null && /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 10,
+      color: T.dimmer,
+      letterSpacing: 0
+    }
+  }, recent.length, "-day avg ", recentAvg.toFixed(3), "%")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: T.panel,
+      border: `1px solid ${T.ruleSoft}`,
+      borderRadius: 4,
+      overflow: "hidden"
+    }
+  }, recent.length === 0 ? /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: 22,
+      color: T.dimmer,
+      fontSize: 12.5,
+      lineHeight: 1.7
+    }
+  }, "Nothing logged yet. Save a session and it builds a rolling month here, with the estimate stored alongside what actually happened.") : /*#__PURE__*/React.createElement("div", {
+    style: {
+      overflowX: "auto"
+    }
+  }, /*#__PURE__*/React.createElement("table", {
+    style: {
+      width: "100%",
+      borderCollapse: "collapse",
+      minWidth: 520
+    }
+  }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, ["Date", "Prior", "Premkt", "To 11", "Est.", "Actual", "Band"].map(h => /*#__PURE__*/React.createElement("th", {
+    key: h,
+    style: {
+      textAlign: h === "Date" || h === "Band" ? "left" : "right",
+      fontFamily: SANS,
+      fontSize: 8.5,
+      letterSpacing: "0.16em",
+      textTransform: "uppercase",
+      color: T.dimmer,
+      padding: "11px 12px",
+      borderBottom: `1px solid ${T.ruleSoft}`,
+      fontWeight: 500
+    }
+  }, h)))), /*#__PURE__*/React.createElement("tbody", null, recent.map(r => /*#__PURE__*/React.createElement("tr", {
+    key: r.date + r.ticker
+  }, /*#__PURE__*/React.createElement("td", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 11.5,
+      color: T.dim,
+      padding: "10px 12px",
+      borderBottom: `1px solid ${T.ruleSoft}`
+    }
+  }, r.date.slice(5)), [r.priorRange, r.preRange, r.to11Range, r.est, r.actual].map((v, i) => /*#__PURE__*/React.createElement("td", {
+    key: i,
+    style: {
+      fontFamily: MONO,
+      fontSize: 11.5,
+      color: i >= 3 ? T.text : T.dim,
+      textAlign: "right",
+      padding: "10px 12px",
+      borderBottom: `1px solid ${T.ruleSoft}`
+    }
+  }, v == null ? "—" : v.toFixed(2))), /*#__PURE__*/React.createElement("td", {
+    style: {
+      padding: "10px 12px",
+      borderBottom: `1px solid ${T.ruleSoft}`
+    }
+  }, /*#__PURE__*/React.createElement(BandTag, {
+    idx: r.band
+  })))))))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 24,
+      paddingTop: 15,
+      borderTop: `1px solid ${T.ruleSoft}`,
+      fontFamily: MONO,
+      fontSize: 10,
+      color: T.dimmer,
+      lineHeight: 1.9
+    }
+  }, "Bands are quartiles of the 5-year sample: calm below ", THRESH[0].toFixed(2), "%, normal to", " ", THRESH[1].toFixed(2), "%, agitated to ", THRESH[2].toFixed(2), "%, wild above. Pre-open estimate explains about half the variance out of sample; the 11:00 reading lifts that to roughly 61%. Exact band correct ~45% of the time, within one band ~96%.")));
+}
+  try {
+    ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(RangeDeskLive));
+  } catch (e) {
+    document.getElementById('root').innerHTML =
+      '<div style="color:#C0533C;font:13px ui-monospace,monospace;padding:28px;line-height:1.8">'
+      + 'Failed to start: ' + (e && e.message ? e.message : e) + '</div>';
+  }
+})();
+</script>
+</body>
+</html>
