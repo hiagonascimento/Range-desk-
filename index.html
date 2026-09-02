@@ -1,0 +1,2606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+<title>Range Desk</title>
+<meta name="description" content="Intraday range analysis and volatility classification." />
+<meta name="theme-color" content="#10141A" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Range Desk" />
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180"><rect width="180" height="180" fill="%2310141A"/><rect x="24" y="72" width="33" height="36" fill="%233D8B87"/><rect x="57" y="72" width="33" height="36" fill="%236BA35C"/><rect x="90" y="72" width="33" height="36" fill="%23CE9A3C"/><rect x="123" y="72" width="33" height="36" fill="%23C0533C"/><rect x="98" y="58" width="3" height="64" fill="%23E4EBF2"/></svg>" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180"><rect width="180" height="180" fill="%2310141A"/><rect x="24" y="72" width="33" height="36" fill="%233D8B87"/><rect x="57" y="72" width="33" height="36" fill="%236BA35C"/><rect x="90" y="72" width="33" height="36" fill="%23CE9A3C"/><rect x="123" y="72" width="33" height="36" fill="%23C0533C"/><rect x="98" y="58" width="3" height="64" fill="%23E4EBF2"/></svg>" />
+<link rel="manifest" href='data:application/manifest+json,%7B%22name%22%3A%22Range%20Desk%22%2C%22short_name%22%3A%22Range%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%2310141A%22%2C%22theme_color%22%3A%22%2310141A%22%2C%22orientation%22%3A%22portrait%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%3Csvg%20xmlns%3D%5C%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%5C%22%20viewBox%3D%5C%220%200%20180%20180%5C%22%3E%3Crect%20width%3D%5C%22180%5C%22%20height%3D%5C%22180%5C%22%20fill%3D%5C%22%252310141A%5C%22%2F%3E%3Crect%20x%3D%5C%2224%5C%22%20y%3D%5C%2272%5C%22%20width%3D%5C%2233%5C%22%20height%3D%5C%2236%5C%22%20fill%3D%5C%22%25233D8B87%5C%22%2F%3E%3Crect%20x%3D%5C%2257%5C%22%20y%3D%5C%2272%5C%22%20width%3D%5C%2233%5C%22%20height%3D%5C%2236%5C%22%20fill%3D%5C%22%25236BA35C%5C%22%2F%3E%3Crect%20x%3D%5C%2290%5C%22%20y%3D%5C%2272%5C%22%20width%3D%5C%2233%5C%22%20height%3D%5C%2236%5C%22%20fill%3D%5C%22%2523CE9A3C%5C%22%2F%3E%3Crect%20x%3D%5C%22123%5C%22%20y%3D%5C%2272%5C%22%20width%3D%5C%2233%5C%22%20height%3D%5C%2236%5C%22%20fill%3D%5C%22%2523C0533C%5C%22%2F%3E%3Crect%20x%3D%5C%2298%5C%22%20y%3D%5C%2258%5C%22%20width%3D%5C%223%5C%22%20height%3D%5C%2264%5C%22%20fill%3D%5C%22%2523E4EBF2%5C%22%2F%3E%3C%2Fsvg%3E%22%2C%22sizes%22%3A%22any%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D' />
+<style>
+  html,body{margin:0;padding:0;background:#10141A;-webkit-text-size-adjust:100%;overscroll-behavior-y:none}
+  body{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  input{font-size:16px}
+  input:focus{border-color:#8FD3CB !important}
+  button:active{opacity:.7}
+  ::-webkit-scrollbar{height:6px;width:6px}
+  ::-webkit-scrollbar-thumb{background:#2A3440;border-radius:3px}
+  #boot{color:#7E8C9B;font:13px ui-monospace,Menlo,monospace;padding:28px;line-height:1.7}
+  @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div id="root"><div id="boot">Loading Range Desk…<br><span style="color:#56616E">If this stays, the React CDN is unreachable.</span></div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" crossorigin></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" crossorigin></script>
+<script>
+(function(){
+  if (window.storage) return;
+  // Standalone fallback: persist to localStorage when the host provides no
+  // storage API, so the log survives reloads in a normal browser tab.
+  var ok = (function(){ try { var k='__rd'; localStorage.setItem(k,'1'); localStorage.removeItem(k); return true; } catch(e){ return false; } })();
+  var mem = {};
+  window.storage = {
+    get: function(k){
+      var v = ok ? localStorage.getItem(k) : mem[k];
+      return (v===null||v===undefined) ? Promise.reject(new Error('not found')) : Promise.resolve({key:k,value:v});
+    },
+    set: function(k,v){ if(ok) localStorage.setItem(k,v); else mem[k]=v; return Promise.resolve({key:k,value:v}); },
+    delete: function(k){ if(ok) localStorage.removeItem(k); else delete mem[k]; return Promise.resolve({key:k,deleted:true}); },
+    list: function(){ return Promise.resolve({keys: ok ? Object.keys(localStorage) : Object.keys(mem)}); }
+  };
+})();
+</script>
+<script>
+(function(){
+  if (!window.React || !window.ReactDOM) {
+    document.getElementById('root').innerHTML =
+      '<div style="color:#C0533C;font:13px ui-monospace,monospace;padding:28px;line-height:1.8">'
+      + 'React failed to load from the CDN.<br>Check the network connection and reload.' + '</div>';
+    return;
+  }
+  var useState = React.useState, useEffect = React.useEffect, useMemo = React.useMemo,
+      useCallback = React.useCallback, useRef = React.useRef;
+/* ============================================================
+   RANGE DESK - live intraday range analysis
+   SOURCE OF TRUTH. Build with:  node build_webapp.js
+
+   Reconstructed 2026-08-22 from the compiled index.html (the original .jsx
+   was lost). Verified by rebuilding and re-running the render test suite --
+   output is behaviourally identical to the compiled build it came from.
+
+   Data: Polygon.io minute aggregates (extended hours included).
+   Model: log-space, VIX1D-driven, refit on 1,030 non-Fed sessions
+          (May 2022 - Aug 2026). Fed decision days are excluded from every
+          fit and flagged for skipping. See CLAUDE.md before touching any
+          constant in the MODEL block.
+   ============================================================ */
+
+/* ---------- 1. DESIGN TOKENS ----------------------------------------------
+   Instrument-panel palette. Band colours are a thermal progression
+   (teal -> green -> amber -> rust) because volatility is one continuous
+   quantity, not four unrelated states. Inline styles throughout: the palette
+   is custom and it keeps the build to a single file.
+   -------------------------------------------------------------------------- */
+const T = {
+  ink: "#10141A",
+  panel: "#171D25",
+  panelAlt: "#1C232C",
+  rule: "#2A3440",
+  ruleSoft: "#212934",
+  text: "#E4EBF2",
+  dim: "#7E8C9B",
+  dimmer: "#56616E",
+  calm: "#3D8B87",
+  normal: "#6BA35C",
+  agitated: "#CE9A3C",
+  wild: "#C0533C",
+  live: "#8FD3CB",
+  alert: "#C0533C"
+};
+const MONO = "ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace";
+const SANS = "'Helvetica Neue', Helvetica, Arial, system-ui, sans-serif";
+const THRESH = [0.6932, 0.9954, 1.4508];
+const BANDS = [{
+  key: "CALM",
+  label: "Calm",
+  color: T.calm
+}, {
+  key: "NORMAL",
+  label: "Normal",
+  color: T.normal
+}, {
+  key: "AGITATED",
+  label: "Agitated",
+  color: T.agitated
+}, {
+  key: "WILD",
+  label: "Wild",
+  color: T.wild
+}];
+/* Log-space models, VIX1D-driven. Refit Aug 2026 on 1,030 non-FOMC sessions
+   (May 2022 - Aug 2026). Fed decision days are EXCLUDED from every fit and are
+   flagged for skipping in the UI, so there is no event dummy anywhere.
+   M_932 is fitted on the 816 live-VIX1D sessions only: before 2023-04-03 Cboe
+   published a single daily value (OPEN=HIGH=LOW=CLOSE), so "today's open" was
+   not an open in that era and measurably degraded the coefficient.
+   Each model has a _NOPRE twin used when the feed returns no premarket bars.
+   MAE figures are walk-forward (expanding window, refit every 21 sessions). */
+// ln(range) = a + b*ln(premkt) + c*ln(vix1dPrevClose)
+/* ---------- 2. THE MODEL --------------------------------------------------
+   DO NOT EDIT THESE CONSTANTS WITHOUT RE-RUNNING THE FIT.
+
+   Log space throughout: ln(range) = a + SUM b_i * ln(x_i). Fitted by OLS on
+   1,030 non-Fed SPY sessions, May 2022 - Aug 2026. Fed decision days are
+   excluded from every fit and flagged for skipping, so there is no event
+   dummy anywhere in here.
+
+   M_932 is fitted on the 816 live-VIX1D sessions only: before 2023-04-03 Cboe
+   published one value per day (OPEN=HIGH=LOW=CLOSE), so "today's open" was not
+   an open in that era and measurably degraded the coefficient.
+
+   Each model has a _NOPRE twin used when the feed returns no premarket bars.
+   MAE figures are walk-forward (expanding window, refit every 21 sessions).
+   -------------------------------------------------------------------------- */
+const M_PREOPEN = {
+  a: -1.95461,
+  b: 0.17841,
+  c: 0.76234,
+  sdLog: 0.36826,
+  mae: 0.305
+};
+const M_PREOPEN_NOPRE = {
+  a: -2.62504,
+  c: 0.96363,
+  sdLog: 0.37555,
+  mae: 0.32
+};
+// + d*ln(vix1dTodayOpen) - usable minutes after the open
+const M_932 = {
+  a: -2.42529,
+  b: 0.07619,
+  c: 0.16978,
+  d: 0.81292,
+  sdLog: 0.35724,
+  mae: 0.300
+};
+const M_932_NOPRE = {
+  a: -2.71559,
+  c: 0.17542,
+  d: 0.90282,
+  sdLog: 0.35840,
+  mae: 0.31
+};
+/* Checkpoints: ln(range) = a + b*ln(rangeSoFar) + c*ln(premkt) + d*ln(vix1dPrev).
+   After 13:00 a plain completion ratio beats regression, so 14:00 and 15:00
+   switch to it. Two-band miss rate (walk-forward): 8.7% pre-open, 6.2% at
+   10:00, 3.8% at 11:00, 1.6% at 12:00, 0.7% at 2:00. */
+const CHK_MODELS = {
+  630: {
+    kind: "reg",
+    mae: 0.267,
+    a: -0.71452,
+    b: 0.47037,
+    c: 0.07552,
+    d: 0.39113,
+    sdLog: 0.32673,
+    nopre: {
+      a: -0.92811,
+      b: 0.49067,
+      d: 0.45531,
+      sdLog: 0.32813
+    }
+  },
+  660: {
+    kind: "reg",
+    mae: 0.250,
+    a: -0.55655,
+    b: 0.57057,
+    c: 0.06441,
+    d: 0.32302,
+    sdLog: 0.30611,
+    nopre: {
+      a: -0.74682,
+      b: 0.58674,
+      d: 0.37959,
+      sdLog: 0.30720
+    }
+  },
+  690: {
+    kind: "reg",
+    mae: 0.233,
+    a: -0.42346,
+    b: 0.65054,
+    c: 0.04972,
+    d: 0.26278,
+    sdLog: 0.28399,
+    nopre: {
+      a: -0.57232,
+      b: 0.66281,
+      d: 0.30672,
+      sdLog: 0.28469
+    }
+  },
+  720: {
+    kind: "reg",
+    mae: 0.222,
+    a: -0.40499,
+    b: 0.68335,
+    c: 0.03789,
+    d: 0.24154,
+    sdLog: 0.27244,
+    nopre: {
+      a: -0.51828,
+      b: 0.69292,
+      d: 0.27478,
+      sdLog: 0.27286
+    }
+  },
+  780: {
+    kind: "reg",
+    mae: 0.191,
+    a: -0.25147,
+    b: 0.76379,
+    c: 0.03768,
+    d: 0.16743,
+    sdLog: 0.24125,
+    nopre: {
+      a: -0.36813,
+      b: 0.77233,
+      d: 0.20152,
+      sdLog: 0.24173
+    }
+  },
+  840: {
+    kind: "ratio",
+    mae: 0.131,
+    med: 0.9311,
+    sdLog: 0.19479
+  },
+  900: {
+    kind: "ratio",
+    mae: 0.072,
+    med: 1.0000,
+    sdLog: 0.12320
+  }
+};
+/* 600 (10:00) is deliberately absent. On the same 816 sessions it scored
+   MAE 0.3090 / exact band 49.2% against M_932's 0.3028 / 51.2% -- half an
+   hour of range is a worse classifier than the market's own opening estimate.
+   630 (10:30) beats both on every metric, so the first intraday update is
+   10:30 and 10:00-10:29 holds the 9:32 estimate. Selection is
+   find(t => barMod >= t), which returns undefined below 630 and falls through
+   to M_932 with no special-casing. */
+const CHK_TIMES = [630, 660, 690, 720, 780, 840, 900];
+/* Fed decision days (2:00 PM ET announcement). These are SKIP days: the app
+   warns and does not adjust the model, because Fed-day range behaviour is a
+   different regime measured on only 34 historical sessions. Update annually
+   from the published FOMC calendar. */
+const FOMC_DATES = new Set(["2026-01-28", "2026-03-18", "2026-04-29", "2026-06-17", "2026-07-29", "2026-09-16", "2026-10-28", "2026-12-09"]);
+/* Fallback when no VIX1D is available: prior-day + premarket, log space,
+   refit on the same 1,030 non-FOMC sessions. Less accurate, and the distance
+   tables are keyed to the VIX1D estimate, so treat strikes as approximate. */
+const F_PREOPEN = {
+  a: 0.24954,
+  b: 0.32437,
+  c: 0.38103,
+  sdLog: 0.39348,
+  mae: 0.34
+};
+const F_11AM = {
+  a: 0.39539,
+  b: 0.10312,
+  c: 0.13346,
+  d: 0.62937,
+  sdLog: 0.31205,
+  mae: 0.28
+};
+/* Downward-revision flag. Derived Aug 2026 on 10:00-12:00 checkpoints,
+   live-VIX1D sessions, fully out-of-sample strike selection:
+     revision < 0.90 -> the 90% strike row held 83.1% (25% of sessions)
+     otherwise       -> held 91.1%
+   Gone by 13:00 (p=0.57), so the flag only arms in the morning. */
+const REVISION_CUT = 0.90;
+const REVISION_LAST_CHK = 720; // 12:00 - no measurable effect after this
+/* ---------- ENTRY SCHEDULE, BOTH STRUCTURES -------------------------------
+   Two structures, both shippable, both measured on the same run. The app shows
+   one at a time; the toggle above the table picks which, and the choice is
+   stored under rangedesk:struct.
+
+     IRON CONDOR   a call vertical sold $1 above spot and a put vertical sold
+                   $1 below it, each $5 wide, each leg stopped independently
+                   when SPY trades $1 through its own short strike.
+     CALL SPREAD   the call half of that, alone. Same offset, same width,
+                   same stop.
+
+   The two tables differ ONLY in the structure traded. Same sessions, same
+   credit surface, same fills, same first-match slot rule, same $1 stop - so
+   the rows can be compared line for line.
+
+   REFIT 2026-09-01. Every figure below is measured on the same run: all 816
+   non-Fed live-VIX1D sessions (2023-04-03 - 2026-08-12), credit and cost-to-close
+   both priced from an empirical credit surface, natural fills throughout (sell
+   the bid, pay the ask, both on entry and on exit).
+
+   The surface replaces the old IV = 0.78 x VIX1D assumption, which prices a
+   $5-wide vertical at 0.44-0.45x of real quotes - it understates ATM IV by
+   roughly 1.7x. The surface is read from 1.5M real verticals across 80 quote
+   sessions in dimensionless (moneyness, width) space; held-out validation gives
+   MAE $15 and ratio 0.995x. Exit prices were checked against 1,858 real stop
+   events: accurate to $2-3 at a one-minute reaction lag.
+
+   WHAT CHANGED, AND WHY IT IS NOT WHAT §8.3 PREDICTED. The synthesis reports the
+   app's credits as 40-58% too LOW, from 57 real-quote sessions. Those sessions
+   are not representative of their bands: within WILD their median VIX1D open is
+   22.4 against 13.8 for the rest of the band, and within AGITATED 14.9 against
+   12.1. Measured across the whole era instead, CALM and NORMAL were about right
+   and AGITATED and WILD were too HIGH. Do not restore the old numbers.
+
+   ROWS ARE CONDITIONAL ON REACHING THAT SLOT UNTRADED. Bands are re-estimated at
+   every checkpoint, so a session can qualify at more than one slot. The rule is
+   first match wins: at 10:30 trade if the band reads CALM, else wait; at 11:30
+   trade if it reads NORMAL, else wait; and so on. 166 of 816 sessions never
+   match a slot and are not traded. The n column counts sessions that reached
+   that slot untraded AND matched it, so the four rows sum to the portfolio.
+
+   Principle: the more volatile the forecast, the later the entry. Higher bands
+   need more of the day burned off before the credit covers the risk. Entering
+   AGITATED at 11:00 instead of 12:30 drops the win rate from 68% to 59%.
+
+   PORTFOLIO under that rule, one contract, no compounding:
+     condor       650 trades, 58.8% win, +$13.35/trade (t = 5.11), +$8,677,
+                  max DD -$628, ~193/yr. 2023 +$1,682, 2024 +$884,
+                  2025 +$3,288, 2026 +$2,823 (to 12 Aug).
+     call spread  688 trades, 80.4% win, +$10.14/trade (t = 4.90), +$6,978,
+                  max DD -$411, ~205/yr. 2023 +$929, 2024 +$1,157,
+                  2025 +$2,975, 2026 +$1,917.
+   Neither has a losing year. The condor trades 38 fewer sessions because a
+   stopped put side can leave a session unprofitable where the call alone was
+   flat; both counts come from the same 816.
+
+   WHICH TO TRADE. Paired on the 650 sessions where both trade, the condor
+   earns +$4.56/trade more, t = 1.99, better on 468 of 650. That is the entire
+   case for it, and it is thin:
+   - An earlier run reported +$9.15 and t = 4.05; that run assigned each
+     session to the LAST slot its band matched, which needs lookahead. First
+     match is the implementable rule and it roughly halves the edge. Do not
+     quote the old figure.
+   - Two extra legs cost roughly $1.60/trade more in commission at $0.65/leg,
+     taking the net edge to about $2.90.
+   - The win rate drops from 80% to 59%. Half of all AGITATED and WILD condors
+     lose. That is a very different thing to sit through, and it is the main
+     reason to prefer the call spread if you would not hold the line.
+   - Per band the condor wins CALM (+$6.55), NORMAL (+$2.38) and AGITATED
+     (+$4.01), and LOSES WILD (-$8.55): on a genuinely wild day both sides get
+     tested, so it collects the largest credit of any band and keeps almost
+     none of it. Neither WILD figure is trustworthy at n = 52-57 (condor
+     t = 0.65, call t = 1.84), but it is the one band where the choice reverses.
+   - Stopping each leg at $1.50 instead of $1 tested better on every measure
+     except drawdown (condor 67.0% win, +$18.85/trade, +$12,444, max DD -$709;
+     call 82.1%, +$11.16, +$7,809, max DD -$606). Not shipped, because the
+     paired test on it is not significant either.
+
+   Go/no-go filter: breakeven = mean credit - EV, i.e. the expected cost of the
+   position. Exact and structure-agnostic, unlike the (1-win) x cost shortcut,
+   which assumes a single leg. If the fill on offer is below it, skip. */
+const STRATEGY = {
+  condor: {
+    label: "Iron condor",
+    rule: "iron condor · $5 wide each side · $1 beyond spot · stop each leg at short ±$1",
+    sched: [{
+      band: "CALM",
+      label: "10:30",
+      n: 201,
+      win: 72.1,
+      lo: 65.6,
+      hi: 77.9,
+      credit: 61,
+      avgWin: 55,
+      avgLoss: -63
+    }, {
+      band: "NORMAL",
+      label: "11:30",
+      n: 232,
+      win: 55.2,
+      lo: 48.7,
+      hi: 61.4,
+      credit: 79,
+      avgWin: 60,
+      avgLoss: -52
+    }, {
+      band: "AGITATED",
+      label: "12:30",
+      n: 165,
+      win: 50.9,
+      lo: 43.3,
+      hi: 58.4,
+      credit: 98,
+      avgWin: 72,
+      avgLoss: -55
+    }, {
+      band: "WILD",
+      label: "2:30",
+      n: 52,
+      win: 48.1,
+      lo: 35.1,
+      hi: 61.3,
+      credit: 110,
+      avgWin: 72,
+      avgLoss: -53
+    }],
+    breakeven: {
+      CALM: 39,
+      NORMAL: 69,
+      AGITATED: 88,
+      WILD: 102
+    },
+    pooled: "650 trades · 58.8% win · +$13.35/trade · +$8,677 total · max drawdown −$628 · ~193/yr · no losing year",
+    how: "How it works: at the scheduled time sell the first strike at least $1 ABOVE spot and buy the strike $5 above that; then sell the first strike at least $1 BELOW spot and buy the strike $5 below that. Four legs, one credit. Close either side on its own if SPY trades $1 through that side's short strike — the other side stays on. Anything not stopped expires. Today's band is highlighted.",
+    careHead: "Read with care: expect to WIN LESS OFTEN than the call spread — 59% against 80% — and to make more per trade anyway. Half of AGITATED and WILD condors lose.",
+    careTail: "The edge over the call spread is +$4.56/trade at t = 1.99, and two extra legs cost about $1.60 in commission, so the real margin is thin. WILD is unsupported (n = 52, t = 0.65) and is the one band where the call spread tests better. Skip Fed days."
+  },
+  call: {
+    label: "Call spread",
+    rule: "call credit spread · $5 wide · $1 above spot · stop at short +$1",
+    sched: [{
+      band: "CALM",
+      label: "10:30",
+      n: 211,
+      win: 90.0,
+      lo: 85.3,
+      hi: 93.4,
+      credit: 28,
+      avgWin: 26,
+      avgLoss: -85
+    }, {
+      band: "NORMAL",
+      label: "11:30",
+      n: 245,
+      win: 78.0,
+      lo: 72.4,
+      hi: 82.7,
+      credit: 38,
+      avgWin: 34,
+      avgLoss: -87
+    }, {
+      band: "AGITATED",
+      label: "12:30",
+      n: 175,
+      win: 73.1,
+      lo: 66.1,
+      hi: 79.2,
+      credit: 47,
+      avgWin: 42,
+      avgLoss: -94
+    }, {
+      band: "WILD",
+      label: "2:30",
+      n: 57,
+      win: 77.2,
+      lo: 64.8,
+      hi: 86.2,
+      credit: 52,
+      avgWin: 46,
+      avgLoss: -88
+    }],
+    breakeven: {
+      CALM: 13,
+      NORMAL: 30,
+      AGITATED: 41,
+      WILD: 36
+    },
+    pooled: "688 trades · 80.4% win · +$10.14/trade · +$6,978 total · max drawdown −$411 · ~205/yr · no losing year",
+    how: "How it works: at the scheduled time sell the first strike at least $1 ABOVE spot and buy the strike $5 above that. Two legs. Close it if SPY trades $1 through the short strike. Anything not stopped expires. Today's band is highlighted.",
+    careHead: "Read with care: wins far more often than the condor — 80% against 59% — but earns about $3.20/trade less, and each loss is large against the credit: a CALM win averages +$26 against an average loss of −$85, so one bad day undoes three good ones.",
+    careTail: "AGITATED is the weak band (EV +$5.63, t = 1.15). WILD is the one band where this beats the condor, and by more than the condor gains anywhere else — but at n = 57, t = 1.84, that is not settled. Skip Fed days."
+  }
+};
+const STRUCT_KEYS = ["condor", "call"];
+const MEAN_RANGE = 1.1859;
+const OPEN_POSITION = 0.496;
+const SCALE_MAX = 2.6;
+
+/* OTM distance tables - never-touched basis, rebuilt Aug 2026 on 1,030
+   non-FOMC sessions and re-bucketed on the CURRENT VIX1D estimates (the old
+   tables were bucketed on the retired prior-day model). Values are made
+   monotone across bands: required distance never falls as the estimate rises.
+   Rows: estimate bands; values: % OTM needed for 85 / 90 / 95% no-touch.
+   Holdout on the last 252 non-FOMC sessions held 90.5-94.8% at the 90% level. */
+/* ---------- 3. STRIKE DISTANCE TABLES -------------------------------------
+   Never-touched basis, rebuilt Aug 2026 on 1,030 non-Fed sessions and bucketed
+   on the CURRENT VIX1D estimates. Each entry time is keyed to the model that
+   is actually live at that moment: 9:30 -> pre-open, 9:46 -> 9:32,
+   12:01 -> 12:00 checkpoint, 2:01 -> 2:00 completion ratio.
+
+   Values are monotone across bands: required distance never falls as the
+   estimate rises. Holdout on the last 252 non-Fed sessions held 90.5-94.8%
+   at the 90% level.
+   -------------------------------------------------------------------------- */
+const DIST_BANDS = [{
+  lo: 0,
+  hi: 0.7,
+  label: "<0.7%"
+}, {
+  lo: 0.7,
+  hi: 0.9,
+  label: "0.7-0.9%"
+}, {
+  lo: 0.9,
+  hi: 1.1,
+  label: "0.9-1.1%"
+}, {
+  lo: 1.1,
+  hi: 1.4,
+  label: "1.1-1.4%"
+}, {
+  lo: 1.4,
+  hi: 1.8,
+  label: "1.4-1.8%"
+}, {
+  lo: 1.8,
+  hi: 99,
+  label: ">1.8%"
+}];
+const OTM_TABLES = {
+  "930": {
+    call: [[0.53, 0.61, 0.72], [0.69, 0.79, 0.94], [0.94, 1.07, 1.24], [1.13, 1.23, 1.42], [1.61, 1.79, 2.11], [2.04, 2.22, 2.68]],
+    put: [[0.67, 0.74, 1.08], [0.86, 1.06, 1.33], [1.11, 1.23, 1.45], [1.11, 1.23, 1.72], [1.60, 1.91, 2.16], [1.95, 2.21, 3.16]]
+  },
+  "946": {
+    call: [[0.51, 0.56, 0.66], [0.68, 0.78, 0.91], [0.85, 0.94, 1.03], [1.00, 1.16, 1.50], [1.27, 1.55, 1.91], [1.72, 2.06, 2.25]],
+    put: [[0.65, 0.75, 0.98], [0.90, 1.08, 1.34], [0.94, 1.08, 1.34], [1.10, 1.26, 1.63], [1.26, 1.49, 1.70], [1.72, 2.21, 2.82]]
+  },
+  "1201": {
+    call: [[0.37, 0.43, 0.55], [0.51, 0.61, 0.77], [0.63, 0.73, 0.89], [0.72, 0.83, 0.98], [0.86, 1.02, 1.35], [1.25, 1.29, 1.80]],
+    put: [[0.45, 0.53, 0.61], [0.54, 0.67, 0.87], [0.72, 0.95, 1.07], [0.72, 0.95, 1.18], [0.90, 1.11, 1.46], [1.27, 1.41, 1.51]]
+  },
+  "201": {
+    call: [[0.28, 0.35, 0.43], [0.39, 0.48, 0.58], [0.40, 0.48, 0.60], [0.49, 0.57, 0.78], [0.79, 0.85, 0.95], [0.96, 1.06, 1.54]],
+    put: [[0.34, 0.42, 0.51], [0.37, 0.42, 0.51], [0.50, 0.66, 0.81], [0.56, 0.69, 0.84], [0.75, 0.86, 1.07], [0.83, 1.04, 1.34]]
+  }
+};
+const bandIndexOf = est => est == null ? -1 : DIST_BANDS.findIndex(b => est >= b.lo && est < b.hi);
+
+/* Data pulls run 15 minutes after each window closes, so a delayed feed
+   still returns the complete window. 9:45 captures premarket + prior day;
+   11:15 captures the 9:30–11:00 range. */
+const DEFAULT_KEY = "";
+/* Pulls run ~15 min after each checkpoint so a delayed feed still returns
+   the complete window. Seven calls a day — trivial against 5/minute. */
+const SLOTS = [{
+  at: 585,
+  label: "9:45",
+  note: "premarket + prior session + VIX1D"
+}, {
+  at: 645,
+  label: "10:45",
+  note: "10:30 checkpoint"
+}, {
+  at: 675,
+  label: "11:15",
+  note: "11:00 checkpoint"
+}, {
+  at: 735,
+  label: "12:15",
+  note: "12:00 checkpoint"
+}, {
+  at: 795,
+  label: "1:15",
+  note: "1:00 checkpoint"
+}, {
+  at: 855,
+  label: "2:15",
+  note: "2:00 checkpoint"
+}, {
+  at: 915,
+  label: "3:15",
+  note: "3:00 checkpoint"
+}];
+/* ---------- 4. MATH + TIME HELPERS ----------------------------------------
+   All session slicing uses minute-of-day in America/New_York via
+   Intl.DateTimeFormat + formatToParts, so DST is handled without a tz library.
+   NEVER use UTC offsets or the host machine's local time here.
+   -------------------------------------------------------------------------- */
+const bandOf = p => p == null || !isFinite(p) ? null : p < THRESH[0] ? 0 : p < THRESH[1] ? 1 : p < THRESH[2] ? 2 : 3;
+function erf(x) {
+  const s = x < 0 ? -1 : 1;
+  x = Math.abs(x);
+  const t = 1 / (1 + 0.3275911 * x);
+  const y = 1 - ((((1.061405429 * t - 1.453152027) * t + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x);
+  return s * y;
+}
+const normCdf = (x, mu, sd) => 0.5 * (1 + erf((x - mu) / (sd * Math.SQRT2)));
+function bandProbabilities(lnEst, sdLog) {
+  if (lnEst == null || !isFinite(lnEst)) return null;
+  // residuals are normal in log space -> range is log-normal, which
+  // reproduces the right skew of real range distributions
+  const c = THRESH.map(t => normCdf(Math.log(t), lnEst, sdLog));
+  const raw = [c[0], c[1] - c[0], c[2] - c[1], 1 - c[2]].map(v => Math.max(0, v));
+  const tot = raw.reduce((a, b) => a + b, 0) || 1;
+  return raw.map(v => v / tot);
+}
+const fmtPx = v => v == null ? "—" : v.toFixed(2);
+
+/* ---------- Eastern-time helpers (DST-safe via Intl) ---------- */
+const etParts = (() => {
+  const f = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    weekday: "short",
+    hour12: false
+  });
+  const DOW = {
+    Sun: 0,
+    Mon: 1,
+    Tue: 2,
+    Wed: 3,
+    Thu: 4,
+    Fri: 5,
+    Sat: 6
+  };
+  return ms => {
+    const p = {};
+    for (const {
+      type,
+      value
+    } of f.formatToParts(new Date(ms))) p[type] = value;
+    let hh = parseInt(p.hour, 10);
+    if (hh === 24) hh = 0;
+    return {
+      date: `${p.year}-${p.month}-${p.day}`,
+      minutes: hh * 60 + parseInt(p.minute, 10),
+      hh,
+      mm: parseInt(p.minute, 10),
+      dow: DOW[p.weekday] ?? 1
+    };
+  };
+})();
+const clockET = ms => {
+  const {
+    hh,
+    mm
+  } = etParts(ms);
+  return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
+};
+
+/* Aggregate a list of bars into {open, high, low, close, lastTs} */
+function agg(bars) {
+  if (!bars || bars.length === 0) return null;
+  let high = -Infinity,
+    low = Infinity;
+  for (const b of bars) {
+    if (b.h > high) high = b.h;
+    if (b.l < low) low = b.l;
+  }
+  return {
+    open: bars[0].o,
+    close: bars[bars.length - 1].c,
+    high,
+    low,
+    lastTs: bars[bars.length - 1].t,
+    count: bars.length
+  };
+}
+
+/* ---------------- UI pieces ---------------- */
+/* ---------- 5. PRESENTATIONAL COMPONENTS ---------------------------------- */
+function BandTag({
+  idx,
+  size = "md"
+}) {
+  if (idx == null) return /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: T.dimmer,
+      fontFamily: MONO
+    }
+  }, "—");
+  const b = BANDS[idx];
+  return /*#__PURE__*/React.createElement("span", {
+    style: {
+      display: "inline-block",
+      padding: size === "lg" ? "5px 12px" : "3px 8px",
+      borderRadius: 2,
+      background: b.color + "22",
+      border: `1px solid ${b.color}66`,
+      color: b.color,
+      fontFamily: SANS,
+      fontSize: size === "lg" ? 12 : 9.5,
+      letterSpacing: "0.16em",
+      textTransform: "uppercase",
+      fontWeight: 600
+    }
+  }, b.label);
+}
+function Readout({
+  label,
+  pct,
+  sub,
+  hiLo
+}) {
+  const idx = bandOf(pct);
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: T.panel,
+      border: `1px solid ${T.ruleSoft}`,
+      borderRadius: 4,
+      padding: "14px 15px",
+      flex: "1 1 165px",
+      minWidth: 0
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: SANS,
+      fontSize: 9,
+      letterSpacing: "0.16em",
+      textTransform: "uppercase",
+      color: T.dimmer,
+      marginBottom: 9
+    }
+  }, label), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 26,
+      color: idx == null ? T.dimmer : BANDS[idx].color,
+      lineHeight: 1,
+      marginBottom: 10,
+      letterSpacing: "-0.02em"
+    }
+  }, pct == null ? "—" : pct.toFixed(3), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 13,
+      color: T.dim
+    }
+  }, "%")), /*#__PURE__*/React.createElement(BandTag, {
+    idx: idx
+  }), hiLo && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 10.5,
+      color: T.dim,
+      marginTop: 9
+    }
+  }, fmtPx(hiLo.low), " – ", fmtPx(hiLo.high)), sub && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 10,
+      color: T.dimmer,
+      marginTop: 4
+    }
+  }, sub));
+}
+function Spectrum({
+  markers
+}) {
+  const stops = [0, ...THRESH, SCALE_MAX];
+  const pos = v => Math.max(0, Math.min(100, v / SCALE_MAX * 100));
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 4
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      height: 34,
+      borderRadius: 3,
+      overflow: "hidden"
+    }
+  }, BANDS.map((b, i) => /*#__PURE__*/React.createElement("div", {
+    key: b.key,
+    style: {
+      width: (stops[i + 1] - stops[i]) / SCALE_MAX * 100 + "%",
+      background: `linear-gradient(180deg, ${b.color}44, ${b.color}18)`,
+      borderRight: i < 3 ? `1px solid ${T.ink}` : "none",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: SANS,
+      fontSize: 8.5,
+      letterSpacing: "0.18em",
+      textTransform: "uppercase",
+      color: b.color
+    }
+  }, b.label)))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "relative",
+      height: 15
+    }
+  }, THRESH.map(t => /*#__PURE__*/React.createElement("div", {
+    key: t,
+    style: {
+      position: "absolute",
+      left: pos(t) + "%",
+      transform: "translateX(-50%)",
+      fontFamily: MONO,
+      fontSize: 9,
+      color: T.dimmer,
+      paddingTop: 2
+    }
+  }, t.toFixed(2)))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "relative",
+      height: markers.length ? 26 * markers.length + 4 : 0
+    }
+  }, markers.map((m, i) => /*#__PURE__*/React.createElement("div", {
+    key: m.label,
+    style: {
+      position: "absolute",
+      top: i * 26,
+      left: 0,
+      right: 0,
+      height: 24
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "absolute",
+      left: pos(m.value) + "%",
+      width: 2,
+      height: 24,
+      background: m.color,
+      transform: "translateX(-1px)"
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "absolute",
+      left: pos(m.value) + "%",
+      top: 3,
+      transform: pos(m.value) > 70 ? "translateX(calc(-100% - 8px))" : "translateX(8px)",
+      fontFamily: SANS,
+      fontSize: 9.5,
+      letterSpacing: "0.12em",
+      textTransform: "uppercase",
+      color: m.color,
+      whiteSpace: "nowrap"
+    }
+  }, m.label, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: MONO,
+      color: T.dim,
+      marginLeft: 7,
+      letterSpacing: 0
+    }
+  }, m.value.toFixed(3), "%"))))));
+}
+
+/* ---------- 6. THE APP -----------------------------------------------------
+   Reliability rules that exist because each one was a real failure:
+     1. every fetch has an AbortController timeout (20s)
+     2. a new request aborts the one in flight; a response whose controller is
+        no longer inflightRef.current is discarded
+     3. errors must not destroy loaded state - only fall back to manual entry
+        when nothing is on screen (hasDataRef)
+     4. show a request trace: endpoint, key suffix, status, latency, bar counts
+     5. show data age - delayed data is fine, silently delayed data is not
+     6. show a live elapsed counter while loading
+     7. manual entry must always work; it is not a second-class path
+   -------------------------------------------------------------------------- */
+function RangeDeskLive() {
+  const [apiKey, setApiKey] = useState(DEFAULT_KEY);
+  const [keyDraft, setKeyDraft] = useState(DEFAULT_KEY);
+  const [ticker, setTicker] = useState("SPY");
+  const [tickerDraft, setTickerDraft] = useState("SPY");
+  const [showSettings, setShowSettings] = useState(false);
+  const [data, setData] = useState(null); // { prior, pre, rth, to11, asOf }
+  const [status, setStatus] = useState("idle"); // idle | loading | ok | error
+  const [errMsg, setErrMsg] = useState("");
+  const [diag, setDiag] = useState(null);
+  const [elapsed, setElapsed] = useState(0);
+  const [scheduled, setScheduled] = useState(true);
+  const [nowMin, setNowMin] = useState(() => etParts(Date.now()).minutes);
+  const [distEntry, setDistEntry] = useState("930");
+  const [vix1d, setVix1d] = useState("");
+  const [vixAuto, setVixAuto] = useState(null); // { value, date } when pulled from the feed
+  const [vixOpenToday, setVixOpenToday] = useState(null); // today's I:VIX1D open
+  const [vixOpenDraft, setVixOpenDraft] = useState(""); // text in the manual box
+  const [baseEst, setBaseEst] = useState(null); // {date, value} morning estimate, for the revision flag, once live
+  // Fed days are skipped, not modelled - no event toggle
+  const isFomc = FOMC_DATES.has(etParts(Date.now()).date);
+  const [distSide, setDistSide] = useState("call");
+  const [struct, setStruct] = useState("condor"); // which entry schedule is shown
+  const [history, setHistory] = useState([]);
+  const [note, setNote] = useState("");
+  const timerRef = useRef(null);
+  const firedSlotsRef = useRef(new Set()); // "YYYY-MM-DD#9:45" tags already fired
+  const inflightRef = useRef(null); // AbortController of the request in flight
+  const hasDataRef = useRef(false);
+
+  /* ---- load saved key + history ---- */
+  useEffect(() => {
+    (async () => {
+      try {
+        const k = await window.storage.get("rangedesk:key");
+        if (k && k.value) {
+          setApiKey(k.value);
+          setKeyDraft(k.value);
+        } else if (!DEFAULT_KEY) {
+          setShowSettings(true);
+        }
+      } catch (e) {
+        if (!DEFAULT_KEY) setShowSettings(true);
+      }
+      try {
+        const t = await window.storage.get("rangedesk:ticker");
+        if (t && t.value) {
+          setTicker(t.value);
+          setTickerDraft(t.value);
+        }
+      } catch (e) {}
+      try {
+        const h = await window.storage.get("rangedesk:history");
+        if (h && h.value) setHistory(JSON.parse(h.value));
+      } catch (e) {}
+      try {
+        const s = await window.storage.get("rangedesk:struct");
+        if (s && STRUCT_KEYS.indexOf(s.value) >= 0) setStruct(s.value);
+      } catch (e) {}
+      try {
+        const be = await window.storage.get("rangedesk:baseest");
+        if (be && be.value) {
+          const p = JSON.parse(be.value);
+          if (p.date === etParts(Date.now()).date) setBaseEst(p);
+        }
+      } catch (e) {}
+      try {
+        const vo = await window.storage.get("rangedesk:vix1dopen");
+        if (vo && vo.value) {
+          const p = JSON.parse(vo.value);
+          if (p.date === etParts(Date.now()).date) {
+            setVixOpenDraft(p.value);
+            const n = parseFloat(p.value);
+            if (isFinite(n) && n > 0) setVixOpenToday(n);
+          }
+        }
+      } catch (e) {}
+      try {
+        const v = await window.storage.get("rangedesk:vix1d");
+        if (v && v.value) {
+          const p = JSON.parse(v.value);
+          // only reuse if saved today — VIX1D changes daily
+          if (p.date === etParts(Date.now()).date) setVix1d(p.value);
+        }
+      } catch (e) {}
+    })();
+  }, []);
+
+  /* ---- fetch and slice minute bars ---- */
+  const fetchData = useCallback(async (key, sym) => {
+    if (!key) {
+      setStatus("error");
+      setErrMsg("Add a Polygon API key in Settings to pull live data.");
+      return;
+    }
+    setStatus("loading");
+    setErrMsg("");
+    setDiag(null);
+    const t0 = Date.now();
+    const log = [];
+    // cancel any request already in flight so responses can't interleave
+    if (inflightRef.current) {
+      try {
+        inflightRef.current.abort();
+      } catch (e) {}
+    }
+    const ctrl = new AbortController();
+    inflightRef.current = ctrl;
+    try {
+      const now = Date.now();
+      // 6 calendar days reaches the prior session even across a long
+      // weekend, and keeps the response far smaller than 12 days did.
+      const from = new Date(now - 6 * 86400000).toISOString().slice(0, 10);
+      const to = new Date(now + 86400000).toISOString().slice(0, 10);
+      const url = `https://api.polygon.io/v2/aggs/ticker/${encodeURIComponent(sym)}` + `/range/1/minute/${from}/${to}?adjusted=true&sort=asc&limit=50000&apiKey=${encodeURIComponent(key)}`;
+      log.push(`GET .../${sym}/range/1/minute/${from}/${to}`);
+      log.push(`key ...${key.slice(-4)}`);
+      const killer = setTimeout(() => ctrl.abort(), 20000);
+      let res;
+      try {
+        res = await fetch(url, {
+          signal: ctrl.signal,
+          mode: "cors"
+        });
+        clearTimeout(killer);
+      } catch (netErr) {
+        clearTimeout(killer);
+        if (ctrl !== inflightRef.current) return; // superseded by a newer request
+        const aborted = netErr.name === "AbortError";
+        log.push(aborted ? "aborted: no response in 20s" : `network error: ${netErr.message}`);
+        setDiag(log);
+        throw new Error(aborted ? "No response in 20 seconds — the request is stalling before it reaches polygon.io." : "The request never reached polygon.io — a browser network or CORS block, not a bad key.");
+      }
+      if (ctrl !== inflightRef.current) return; // a newer request took over
+      log.push(`HTTP ${res.status} ${res.statusText || ""}`.trim() + ` · ${Date.now() - t0}ms`);
+      if (!res.ok) {
+        const body = await res.text();
+        log.push(`body: ${body.slice(0, 200)}`);
+        setDiag(log);
+        if (res.status === 401 || res.status === 403) throw new Error("Key rejected (401/403). Check the key and that your plan covers minute aggregates.");
+        if (res.status === 429) throw new Error("Rate limited (429). Free tier allows 5 calls/minute.");
+        throw new Error(`HTTP ${res.status}. ${body.slice(0, 140)}`);
+      }
+      const j = await res.json();
+      log.push(`status field: ${j.status || "—"} · results: ${j.resultsCount ?? (j.results ? j.results.length : 0)}`);
+      if (!j.results || j.results.length === 0) {
+        setDiag(log);
+        throw new Error(`No bars returned (API said "${j.status || "?"}"). Free plans often exclude recent intraday bars — try Manual entry.`);
+      }
+
+      // group bars by Eastern date
+      const byDate = new Map();
+      for (const b of j.results) {
+        const {
+          date,
+          minutes
+        } = etParts(b.t);
+        if (!byDate.has(date)) byDate.set(date, []);
+        byDate.get(date).push({
+          ...b,
+          m: minutes
+        });
+      }
+      const dates = [...byDate.keys()].sort();
+      const todayET = etParts(Date.now()).date;
+
+      // "today" = most recent session present (handles pre-open and weekends)
+      const curDate = dates[dates.length - 1];
+      const curBars = byDate.get(curDate) || [];
+      // prior session = the session before the current one
+      const priorDate = dates[dates.length - 2];
+      const priorBars = byDate.get(priorDate) || [];
+      const priorRTH = priorBars.filter(b => b.m >= 570 && b.m < 960);
+      const preBars = curBars.filter(b => b.m >= 240 && b.m < 570);
+      const rthBars = curBars.filter(b => b.m >= 570 && b.m < 960);
+      const to11Bars = curBars.filter(b => b.m >= 570 && b.m <= 660);
+      log.push(`sessions found: ${dates.length} (${dates[0]} … ${curDate})`);
+      log.push(`${curDate}: premarket ${preBars.length} bars · RTH ${rthBars.length} · to-11 ${to11Bars.length}`);
+      log.push(`${priorDate || "—"}: prior RTH ${priorRTH.length} bars`);
+      if (preBars.length === 0) log.push("NOTE: zero premarket bars — plan may exclude extended hours.");
+      setDiag(log);
+      setData({
+        curDate,
+        priorDate,
+        isLive: curDate === todayET,
+        prior: agg(priorRTH),
+        pre: agg(preBars),
+        rth: agg(rthBars),
+        to11: agg(to11Bars),
+        asOf: Date.now(),
+        lastBarTs: (curBars[curBars.length - 1] || j.results[j.results.length - 1]).t
+      });
+      hasDataRef.current = true;
+      setStatus("ok");
+
+      /* ---- VIX1D: prior session close, fetched from Polygon indices ----
+         Runs after the price data is already on screen, so a failure here
+         (indices are a separate Massive subscription and the free tier
+         carries only a limited ticker set) degrades to manual entry
+         without disturbing anything else. */
+      try {
+        const vUrl = `https://api.polygon.io/v2/aggs/ticker/I:VIX1D/range/1/day/${from}/${to}` + `?adjusted=true&sort=asc&limit=120&apiKey=${encodeURIComponent(key)}`;
+        const vCtrl = ctrl; // share the main controller so a superseded
+        // request cannot land a stale VIX1D value on top of a newer one
+        const vKill = setTimeout(() => vCtrl.abort(), 12000);
+        const vRes = await fetch(vUrl, {
+          signal: vCtrl.signal,
+          mode: "cors"
+        });
+        clearTimeout(vKill);
+        if (!vRes.ok) {
+          const t = await vRes.text();
+          log.push(`VIX1D: HTTP ${vRes.status}` + (vRes.status === 403 || vRes.status === 401 ? " — indices not included in this plan; enter it manually" : ` ${t.slice(0, 80)}`));
+          setDiag([...log]);
+        } else {
+          const vj = await vRes.json();
+          const bars = vj.results || [];
+          // take the last bar strictly before today's ET session
+          const prior = bars.filter(b => etParts(b.t).date < todayET).pop();
+          const todayBar = bars.find(b => etParts(b.t).date === todayET);
+          if (todayBar && todayBar.o > 0) {
+            setVixOpenToday(todayBar.o);
+            setVixOpenDraft(String(todayBar.o));
+            log.push(`VIX1D today: open ${todayBar.o}`);
+          }
+          if (prior) {
+            setVix1d(String(prior.c));
+            setVixAuto({
+              value: prior.c,
+              date: etParts(prior.t).date
+            });
+            log.push(`VIX1D: ${prior.c} (close ${etParts(prior.t).date}, ${bars.length} bars)`);
+            try {
+              await window.storage.set("rangedesk:vix1d", JSON.stringify({
+                value: String(prior.c),
+                date: todayET
+              }));
+            } catch (e) {}
+          } else {
+            log.push(`VIX1D: ${bars.length} bars returned but none before ${todayET}`);
+          }
+          setDiag([...log]);
+        }
+      } catch (ve) {
+        log.push(`VIX1D: ${ve.name === "AbortError" ? "timed out" : ve.message} — enter manually`);
+        setDiag([...log]);
+      }
+    } catch (e) {
+      setStatus("error");
+      setErrMsg(String(e.message || e));
+      // Only push the user to manual entry when there is nothing on
+      // screen; a transient failure (rate limit, timeout) should not
+      // hide data that already loaded.
+      if (!hasDataRef.current) {
+        setUseManual(true);
+        setShowSettings(false);
+      }
+    } finally {
+      if (inflightRef.current && inflightRef.current.signal.aborted === false) {
+        /* keep controller for potential reuse-abort */
+      }
+    }
+  }, []);
+
+  /* elapsed counter so a stalled request is visible, not silent */
+  useEffect(() => {
+    if (status !== "loading") {
+      setElapsed(0);
+      return;
+    }
+    const t = setInterval(() => setElapsed(e => e + 1), 1000);
+    return () => clearInterval(t);
+  }, [status]);
+
+  /* ---- single orchestrator ----
+     One fetch when the key/ticker becomes available or changes. After
+     that, scheduled slot pulls at 9:45 and 11:15 ET on weekdays only.
+     A slot that has already fired today is skipped, and the initial
+     fetch marks any already-passed slots as fired so loading the page
+     at 10:00 does not double-fetch. */
+  useEffect(() => {
+    if (!apiKey) return;
+    const {
+      date,
+      minutes,
+      dow
+    } = etParts(Date.now());
+    for (const s of SLOTS) if (minutes >= s.at) firedSlotsRef.current.add(`${date}#${s.label}`);
+    fetchData(apiKey, ticker);
+  }, [apiKey, ticker, fetchData]);
+  useEffect(() => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    if (!scheduled || !apiKey) return;
+    const tick = () => {
+      const p = etParts(Date.now());
+      setNowMin(p.minutes);
+      if (p.dow === 0 || p.dow === 6) return; // markets closed weekends
+      for (const s of SLOTS) {
+        const tag = `${p.date}#${s.label}`;
+        if (p.minutes >= s.at && !firedSlotsRef.current.has(tag)) {
+          firedSlotsRef.current.add(tag);
+          fetchData(apiKey, ticker);
+          return;
+        }
+      }
+    };
+    timerRef.current = setInterval(tick, 30000);
+    return () => timerRef.current && clearInterval(timerRef.current);
+  }, [scheduled, apiKey, ticker, fetchData]);
+
+  /* next scheduled pull, for the header — nowMin ticks via the scheduler */
+  const nextSlot = useMemo(() => SLOTS.find(s => nowMin < s.at) || null, [nowMin]);
+
+  /* ---- manual override ---- */
+  const [manual, setManual] = useState({
+    pO: "",
+    pH: "",
+    pL: "",
+    mH: "",
+    mL: "",
+    tO: "",
+    eH: "",
+    eL: ""
+  });
+  const [useManual, setUseManual] = useState(false);
+  const mnum = v => {
+    const n = parseFloat(v);
+    return isFinite(n) ? n : null;
+  };
+
+  /* ---- derived ranges ---- */
+  const prior = useMemo(() => {
+    if (useManual) {
+      const o = mnum(manual.pO),
+        h = mnum(manual.pH),
+        l = mnum(manual.pL);
+      return o && h && l && h > l ? {
+        open: o,
+        high: h,
+        low: l
+      } : null;
+    }
+    return data?.prior || null;
+  }, [useManual, manual, data]);
+  const preM = useMemo(() => {
+    if (useManual) {
+      const h = mnum(manual.mH),
+        l = mnum(manual.mL);
+      return h && l && h >= l ? {
+        high: h,
+        low: l
+      } : null;
+    }
+    return data?.pre || null;
+  }, [useManual, manual, data]);
+  const todayOpen = useMemo(() => {
+    if (useManual) return mnum(manual.tO);
+    return data?.rth?.open ?? null;
+  }, [useManual, manual, data]);
+  const to11 = useMemo(() => {
+    if (useManual) {
+      const h = mnum(manual.eH),
+        l = mnum(manual.eL);
+      return h && l && h >= l ? {
+        high: h,
+        low: l
+      } : null;
+    }
+    // only count it once 11:00 has actually passed
+    if (!data?.to11) return null;
+    const nowM = etParts(Date.now()).minutes;
+    if (data.isLive && nowM < 660) return null;
+    return data.to11;
+  }, [useManual, manual, data]);
+  const priorRange = prior ? (prior.high - prior.low) / prior.open * 100 : null;
+  const preDenom = useMemo(() => {
+    if (todayOpen) return {
+      v: todayOpen,
+      src: "today's open"
+    };
+    if (preM) return {
+      v: (preM.high + preM.low) / 2,
+      src: "premarket mid"
+    };
+    if (prior) return {
+      v: prior.close ?? (prior.high + prior.low) / 2,
+      src: "prior close"
+    };
+    return {
+      v: null,
+      src: null
+    };
+  }, [todayOpen, preM, prior]);
+  const preRange = preM && preDenom.v ? (preM.high - preM.low) / preDenom.v * 100 : null;
+  const to11Range = to11 && (todayOpen || preDenom.v) ? (to11.high - to11.low) / (todayOpen || preDenom.v) * 100 : null;
+
+  /* Range so far and the checkpoint it qualifies for.
+     Auto mode: uses the live session aggregate and the last bar's ET time,
+     so a delayed feed simply lands on an earlier checkpoint. Manual mode:
+     the to-11 fields map to the 11:00 checkpoint. */
+  const sofar = useMemo(() => {
+    if (useManual) {
+      if (to11Range != null) return {
+        range: to11Range,
+        chk: 660,
+        asOf: "11:00"
+      };
+      return null;
+    }
+    if (!data?.rth || !data.isLive) return null;
+    const barMod = etParts(data.lastBarTs).minutes;
+    const chk = [...CHK_TIMES].reverse().find(t => barMod >= t);
+    if (!chk) return null;
+    const r = (data.rth.high - data.rth.low) / (todayOpen || data.rth.open) * 100;
+    return {
+      range: r,
+      chk,
+      asOf: clockET(data.lastBarTs)
+    };
+  }, [useManual, to11Range, data, todayOpen]);
+  const isSkipDay = isFomc;
+  const model = useMemo(() => {
+    const L = v => Math.log(Math.max(v, 0.05));
+    const v = parseFloat(vix1d);
+    const haveV = isFinite(v) && v > 0;
+    const havePre = preRange != null;
+    if (haveV) {
+      // 1) intraday checkpoints once the session is underway
+      if (sofar != null) {
+        const m = CHK_MODELS[sofar.chk];
+        let lnEst, sd;
+        if (m.kind === "ratio") {
+          lnEst = L(sofar.range / m.med);
+          sd = m.sdLog;
+        } else {
+          const f = havePre ? m : m.nopre;
+          lnEst = havePre ? f.a + f.b * L(sofar.range) + f.c * L(preRange) + f.d * L(v) : f.a + f.b * L(sofar.range) + f.d * L(v);
+          sd = f.sdLog;
+        }
+        const h = `${Math.floor(sofar.chk / 60)}:${String(sofar.chk % 60).padStart(2, "0")}`;
+        return {
+          est: Math.exp(lnEst),
+          lnEst,
+          sdLog: sd,
+          mae: m.mae,
+          stage: `Updated - ${h} checkpoint` + (havePre ? "" : " (no premkt)"),
+          asOf: sofar.asOf,
+          full: true
+        };
+      }
+      // 2) minutes after the open: today's VIX1D open is in
+      const vo = vixOpenToday;
+      if (vo != null && vo > 0) {
+        const m = havePre ? M_932 : M_932_NOPRE;
+        const lnEst = havePre ? m.a + m.b * L(preRange) + m.c * L(v) + m.d * L(vo) : m.a + m.c * L(v) + m.d * L(vo);
+        return {
+          est: Math.exp(lnEst),
+          lnEst,
+          sdLog: m.sdLog,
+          mae: m.mae,
+          stage: "9:32 - VIX1D open in" + (havePre ? "" : " (no premkt)"),
+          full: true
+        };
+      }
+      // 3) pre-open
+      const m = havePre ? M_PREOPEN : M_PREOPEN_NOPRE;
+      const lnEst = havePre ? m.a + m.b * L(preRange) + m.c * L(v) : m.a + m.c * L(v);
+      return {
+        est: Math.exp(lnEst),
+        lnEst,
+        sdLog: m.sdLog,
+        mae: m.mae,
+        stage: "Pre-open" + (havePre ? "" : " (no premkt)"),
+        full: true
+      };
+    }
+    // no VIX1D - fall back to the prior-day fits, which do need premarket
+    if (priorRange == null || !havePre) return null;
+    if (to11Range != null) {
+      const m = F_11AM;
+      const lnEst = m.a + m.b * L(priorRange) + m.c * L(preRange) + m.d * L(to11Range);
+      return {
+        est: Math.exp(lnEst),
+        lnEst,
+        sdLog: m.sdLog,
+        mae: m.mae,
+        stage: "11:00 (no VIX1D)",
+        full: false
+      };
+    }
+    const m = F_PREOPEN;
+    const lnEst = m.a + m.b * L(priorRange) + m.c * L(preRange);
+    return {
+      est: Math.exp(lnEst),
+      lnEst,
+      sdLog: m.sdLog,
+      mae: m.mae,
+      stage: "Pre-open (no VIX1D)",
+      full: false
+    };
+  }, [priorRange, preRange, to11Range, vix1d, sofar, vixOpenToday]);
+  /* Capture the morning's own estimate once, before any checkpoint has run.
+     This is the yardstick the revision flag measures against. */
+  useEffect(() => {
+    if (!model || !model.full || sofar != null) return;
+    const today = etParts(Date.now()).date;
+    if (baseEst && baseEst.date === today) return;
+    const rec = {
+      date: today,
+      value: +model.est.toFixed(4)
+    };
+    setBaseEst(rec);
+    (async () => {
+      try {
+        await window.storage.set("rangedesk:baseest", JSON.stringify(rec));
+      } catch (e) {}
+    })();
+  }, [model, sofar, baseEst]);
+
+  /* Downward-revision flag: morning checkpoints only. */
+  const revision = useMemo(() => {
+    if (!model || !model.full || sofar == null) return null;
+    if (sofar.chk > REVISION_LAST_CHK) return null;
+    if (!baseEst || baseEst.date !== etParts(Date.now()).date || !(baseEst.value > 0)) return null;
+    const ratio = model.est / baseEst.value;
+    return {
+      ratio,
+      open: baseEst.value,
+      flagged: ratio < REVISION_CUT,
+      dropPct: Math.round((1 - ratio) * 100)
+    };
+  }, [model, sofar, baseEst]);
+  const probs = useMemo(() => model ? bandProbabilities(model.lnEst, model.sdLog) : null, [model]);
+  const projection = useMemo(() => {
+    if (!model || !todayOpen) return null;
+    const dollars = todayOpen * model.est / 100;
+    const lo = todayOpen - dollars * OPEN_POSITION;
+    return {
+      dollars,
+      lo,
+      hi: lo + dollars,
+      spanLow: todayOpen * Math.max(0.05, model.est - (model.mae ?? 0.33)) / 100,
+      spanHigh: todayOpen * (model.est + (model.mae ?? 0.33)) / 100
+    };
+  }, [model, todayOpen]);
+  const liveRange = useMemo(() => {
+    if (!data?.rth || !data.rth.open || !data.isLive) return null;
+    return (data.rth.high - data.rth.low) / data.rth.open * 100;
+  }, [data]);
+  const markers = useMemo(() => {
+    const out = [];
+    if (priorRange != null) out.push({
+      label: "Yesterday",
+      value: priorRange,
+      color: T.dim
+    });
+    if (model) out.push({
+      label: "Today est.",
+      value: model.est,
+      color: T.live
+    });
+    if (liveRange != null) out.push({
+      label: "So far",
+      value: liveRange,
+      color: T.text
+    });
+    return out;
+  }, [priorRange, model, liveRange]);
+
+  /* ---- persistence ---- */
+  async function pickStruct(k) {
+    setStruct(k);
+    try {
+      await window.storage.set("rangedesk:struct", k);
+    } catch (e) {}
+  }
+  async function saveKey() {
+    const k = keyDraft.trim();
+    const t = tickerDraft.trim().toUpperCase() || "SPY";
+    setApiKey(k);
+    setTicker(t);
+    try {
+      await window.storage.set("rangedesk:key", k);
+      await window.storage.set("rangedesk:ticker", t);
+      setNote("Settings saved.");
+    } catch (e) {
+      setNote("Saved for this session only.");
+    }
+    setShowSettings(false);
+    setTimeout(() => setNote(""), 3000);
+  }
+  async function persistVixOpen(val) {
+    const n = parseFloat(val);
+    setVixOpenToday(val === "" || !isFinite(n) || n <= 0 ? null : n);
+    setVixOpenDraft(val);
+    try {
+      await window.storage.set("rangedesk:vix1dopen", JSON.stringify({
+        date: etParts(Date.now()).date,
+        value: val
+      }));
+    } catch (e) {}
+  }
+  async function persistVix(val) {
+    setVix1d(val);
+    try {
+      await window.storage.set("rangedesk:vix1d", JSON.stringify({
+        date: etParts(Date.now()).date,
+        value: val
+      }));
+    } catch (e) {}
+  }
+  async function saveToday() {
+    if (!model) {
+      setNote("Need yesterday's and premarket levels first.");
+      setTimeout(() => setNote(""), 3000);
+      return;
+    }
+    const entry = {
+      date: data?.curDate || new Date().toISOString().slice(0, 10),
+      ticker,
+      priorRange: priorRange != null ? +priorRange.toFixed(3) : null,
+      preRange: preRange != null ? +preRange.toFixed(3) : null,
+      to11Range: to11Range != null ? +to11Range.toFixed(3) : null,
+      est: +model.est.toFixed(3),
+      vix1d: parseFloat(vix1d) || null,
+      actual: liveRange != null && (!data?.isLive || etParts(Date.now()).minutes >= 960) ? +liveRange.toFixed(3) : null,
+      band: bandOf(model.est)
+    };
+    const next = [entry, ...history.filter(h => !(h.date === entry.date && h.ticker === entry.ticker))].slice(0, 60);
+    setHistory(next);
+    try {
+      await window.storage.set("rangedesk:history", JSON.stringify(next));
+      setNote(`Logged ${entry.date}.`);
+    } catch (e) {
+      setNote("Shown but not saved — storage unavailable.");
+    }
+    setTimeout(() => setNote(""), 3000);
+  }
+  const recent = history.slice(0, 30);
+  const recentAvg = recent.length ? recent.reduce((a, b) => a + (b.actual ?? b.est ?? 0), 0) / recent.length : null;
+  const sectionLabel = {
+    fontFamily: SANS,
+    fontSize: 9.5,
+    letterSpacing: "0.22em",
+    textTransform: "uppercase",
+    color: T.dim,
+    marginBottom: 13,
+    display: "flex",
+    alignItems: "center",
+    gap: 12
+  };
+  const hairline = {
+    flex: 1,
+    height: 1,
+    background: T.ruleSoft
+  };
+  const btn = primary => ({
+    background: primary ? T.live : "transparent",
+    color: primary ? T.ink : T.dim,
+    border: primary ? "none" : `1px solid ${T.rule}`,
+    borderRadius: 3,
+    padding: "10px 18px",
+    fontFamily: SANS,
+    fontSize: 10.5,
+    letterSpacing: "0.16em",
+    textTransform: "uppercase",
+    fontWeight: primary ? 600 : 400,
+    cursor: "pointer"
+  });
+  const input = {
+    width: "100%",
+    background: T.ink,
+    border: `1px solid ${T.rule}`,
+    color: T.text,
+    fontFamily: MONO,
+    fontSize: 14,
+    padding: "9px 10px",
+    borderRadius: 3,
+    outline: "none",
+    boxSizing: "border-box"
+  };
+  const dataAge = data ? Math.round((Date.now() - data.lastBarTs) / 60000) : null;
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      minHeight: "100vh",
+      background: T.ink,
+      color: T.text,
+      fontFamily: SANS,
+      padding: "22px 16px 60px"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      maxWidth: 880,
+      margin: "0 auto"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "baseline",
+      paddingBottom: 14,
+      borderBottom: `1px solid ${T.rule}`,
+      marginBottom: 22,
+      flexWrap: "wrap",
+      gap: 10
+    }
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 19,
+      letterSpacing: "0.30em",
+      textTransform: "uppercase"
+    }
+  }, "Range Desk"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 10.5,
+      color: T.dimmer,
+      letterSpacing: "0.1em",
+      marginTop: 5
+    }
+  }, ticker, " · live feed · model on 1,030 non-Fed sessions")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 10
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 7,
+      height: 7,
+      borderRadius: "50%",
+      background: status === "ok" ? T.live : status === "loading" ? T.agitated : T.alert
+    }
+  }), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 10.5,
+      color: T.dim
+    }
+  }, status === "ok" && data ? `last bar ${clockET(data.lastBarTs)} ET${dataAge > 2 ? ` · ${dataAge}m old` : ""}` : status === "loading" ? `fetching… ${elapsed}s` : status === "error" ? "no feed" : "idle", scheduled && nextSlot && /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: T.dimmer
+    }
+  }, " · next ", nextSlot.label)), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setShowSettings(s => !s),
+    style: {
+      ...btn(false),
+      padding: "7px 12px"
+    }
+  }, "Settings"))), showSettings && /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: T.panelAlt,
+      border: `1px solid ${T.rule}`,
+      borderRadius: 4,
+      padding: 18,
+      marginBottom: 22
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 9.5,
+      letterSpacing: "0.18em",
+      textTransform: "uppercase",
+      color: T.dimmer,
+      marginBottom: 14
+    }
+  }, "Data connection"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "2fr 1fr",
+      gap: 10,
+      marginBottom: 12
+    }
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 9,
+      letterSpacing: "0.14em",
+      color: T.dimmer,
+      marginBottom: 5
+    }
+  }, "POLYGON.IO API KEY"), /*#__PURE__*/React.createElement("input", {
+    type: "password",
+    value: keyDraft,
+    onChange: e => setKeyDraft(e.target.value),
+    placeholder: "paste key",
+    style: input
+  })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 9,
+      letterSpacing: "0.14em",
+      color: T.dimmer,
+      marginBottom: 5
+    }
+  }, "SYMBOL"), /*#__PURE__*/React.createElement("input", {
+    value: tickerDraft,
+    onChange: e => setTickerDraft(e.target.value),
+    style: input
+  }))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 9,
+      flexWrap: "wrap",
+      alignItems: "center"
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: saveKey,
+    style: btn(true)
+  }, "Connect"), /*#__PURE__*/React.createElement("label", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 7,
+      fontSize: 11,
+      color: T.dim,
+      cursor: "pointer"
+    }
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "checkbox",
+    checked: scheduled,
+    onChange: e => setScheduled(e.target.checked)
+  }), "Scheduled pulls (hourly, 9:45–3:15)"), /*#__PURE__*/React.createElement("label", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 7,
+      fontSize: 11,
+      color: T.dim,
+      cursor: "pointer"
+    }
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "checkbox",
+    checked: useManual,
+    onChange: e => setUseManual(e.target.checked)
+  }), "Manual entry")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 10,
+      color: T.dimmer,
+      marginTop: 13,
+      lineHeight: 1.8
+    }
+  }, "Two pulls a day, each 15 minutes after its window closes, so a delayed feed still returns complete data. 9:45 reads premarket and the prior session; 11:15 adds the 9:30–11:00 range. That keeps the free tier sufficient — no real-time plan needed. The key is stored locally and sent only to polygon.io.")), status === "error" && /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: T.alert + "18",
+      border: `1px solid ${T.alert}55`,
+      borderRadius: 4,
+      padding: "13px 15px",
+      marginBottom: 22,
+      fontSize: 12.5,
+      color: T.text,
+      lineHeight: 1.6
+    }
+  }, errMsg, /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 8,
+      fontSize: 11.5,
+      color: T.dim
+    }
+  }, "Manual entry is switched on below so you can still work.")), status === "ok" && data && !data.isLive && /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: T.agitated + "14",
+      border: `1px solid ${T.agitated}44`,
+      borderRadius: 4,
+      padding: "12px 15px",
+      marginBottom: 22,
+      fontSize: 12,
+      color: T.dim,
+      lineHeight: 1.6
+    }
+  }, "The feed has no bars for today yet — showing the most recent session,", " ", /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: T.text,
+      fontFamily: MONO
+    }
+  }, data.curDate), ". On a delayed plan today's premarket appears a little after it completes; hit Refresh after 9:45."), diag && /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: T.ink,
+      border: `1px solid ${T.ruleSoft}`,
+      borderRadius: 4,
+      padding: "12px 14px",
+      marginBottom: 22
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 8.5,
+      letterSpacing: "0.18em",
+      textTransform: "uppercase",
+      color: T.dimmer,
+      marginBottom: 8
+    }
+  }, "Request trace"), diag.map((line, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    style: {
+      fontFamily: MONO,
+      fontSize: 10.5,
+      color: line.startsWith("NOTE") || line.includes("error") ? T.agitated : T.dim,
+      lineHeight: 1.8,
+      wordBreak: "break-all"
+    }
+  }, line))), useManual && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: 26
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: sectionLabel
+  }, /*#__PURE__*/React.createElement("span", null, "Manual levels"), /*#__PURE__*/React.createElement("div", {
+    style: hairline
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gap: 10
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "repeat(3,1fr)",
+      gap: 8
+    }
+  }, [["pO", "Prior open"], ["pH", "Prior high"], ["pL", "Prior low"]].map(([k, l]) => /*#__PURE__*/React.createElement("div", {
+    key: k
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 8.5,
+      letterSpacing: "0.14em",
+      color: T.dimmer,
+      marginBottom: 4,
+      textTransform: "uppercase"
+    }
+  }, l), /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    step: "0.01",
+    value: manual[k],
+    onChange: e => setManual({
+      ...manual,
+      [k]: e.target.value
+    }),
+    style: input
+  })))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "repeat(3,1fr)",
+      gap: 8
+    }
+  }, [["mH", "Premkt high"], ["mL", "Premkt low"], ["tO", "Today open"]].map(([k, l]) => /*#__PURE__*/React.createElement("div", {
+    key: k
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 8.5,
+      letterSpacing: "0.14em",
+      color: T.dimmer,
+      marginBottom: 4,
+      textTransform: "uppercase"
+    }
+  }, l), /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    step: "0.01",
+    value: manual[k],
+    onChange: e => setManual({
+      ...manual,
+      [k]: e.target.value
+    }),
+    style: input
+  })))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "repeat(2,1fr)",
+      gap: 8
+    }
+  }, [["eH", "High to 11:00"], ["eL", "Low to 11:00"]].map(([k, l]) => /*#__PURE__*/React.createElement("div", {
+    key: k
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 8.5,
+      letterSpacing: "0.14em",
+      color: T.dimmer,
+      marginBottom: 4,
+      textTransform: "uppercase"
+    }
+  }, l), /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    step: "0.01",
+    value: manual[k],
+    onChange: e => setManual({
+      ...manual,
+      [k]: e.target.value
+    }),
+    style: input
+  })))))), /*#__PURE__*/React.createElement("div", {
+    style: sectionLabel
+  }, /*#__PURE__*/React.createElement("span", null, "Measured"), /*#__PURE__*/React.createElement("div", {
+    style: hairline
+  }), data && !useManual && /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 10,
+      color: T.dimmer,
+      letterSpacing: 0
+    }
+  }, data.priorDate, " → ", data.curDate)), ticker !== "SPY" && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 10.5,
+      color: T.wild,
+      marginBottom: 12,
+      lineHeight: 1.6
+    }
+  }, `Coefficients are fitted on SPY. ${ticker} estimates and strike distances are not calibrated and should not be traded off.`), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 10,
+      flexWrap: "wrap",
+      marginBottom: 28
+    }
+  }, /*#__PURE__*/React.createElement(Readout, {
+    label: "Yesterday",
+    pct: priorRange,
+    hiLo: prior
+  }), /*#__PURE__*/React.createElement(Readout, {
+    label: "Premarket 4:00–9:29",
+    pct: preRange,
+    hiLo: preM,
+    sub: preDenom.src ? `vs ${preDenom.src}` : null
+  }), /*#__PURE__*/React.createElement(Readout, {
+    label: "To 11:00",
+    pct: to11Range,
+    hiLo: to11
+  }), /*#__PURE__*/React.createElement(Readout, {
+    label: "Session so far",
+    pct: liveRange,
+    hiLo: data?.rth
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: model && model.full ? T.panel : T.agitated + "10",
+      border: `1px solid ${model && model.full ? T.ruleSoft : T.agitated + "44"}`,
+      borderRadius: 4,
+      padding: "14px 15px",
+      marginBottom: 24,
+      display: "flex",
+      alignItems: "center",
+      gap: 14,
+      flexWrap: "wrap"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: "0 0 auto"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: SANS,
+      fontSize: 9,
+      letterSpacing: "0.16em",
+      textTransform: "uppercase",
+      color: T.dimmer,
+      marginBottom: 6
+    }
+  }, "VIX1D · prior close"), /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    step: "0.01",
+    inputMode: "decimal",
+    value: vix1d,
+    placeholder: "12.31",
+    onChange: e => persistVix(e.target.value),
+    style: {
+      width: 110,
+      background: T.ink,
+      border: `1px solid ${T.rule}`,
+      color: T.text,
+      fontFamily: MONO,
+      fontSize: 17,
+      padding: "8px 10px",
+      borderRadius: 3,
+      outline: "none",
+      boxSizing: "border-box"
+    }
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: "0 0 auto"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: SANS,
+      fontSize: 9,
+      letterSpacing: "0.16em",
+      textTransform: "uppercase",
+      color: vixOpenToday != null ? T.live : T.dimmer,
+      marginBottom: 6
+    }
+  }, "VIX1D \u00b7 today's open"), /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    step: "0.01",
+    inputMode: "decimal",
+    value: vixOpenDraft,
+    placeholder: "9:30 print",
+    onChange: e => persistVixOpen(e.target.value),
+    style: {
+      width: 110,
+      background: T.ink,
+      border: `1px solid ${vixOpenToday != null ? T.live + "66" : T.rule}`,
+      color: T.text,
+      fontFamily: MONO,
+      fontSize: 17,
+      padding: "8px 10px",
+      borderRadius: 3,
+      outline: "none",
+      boxSizing: "border-box"
+    }
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: "1 1 200px",
+      fontFamily: MONO,
+      fontSize: 10.5,
+      color: T.dimmer,
+      lineHeight: 1.7
+    }
+  }, vixAuto && String(vixAuto.value) === String(vix1d) ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: T.live
+    }
+  }, "Auto · I:VIX1D close ", vixAuto.date), /*#__PURE__*/React.createElement("br", null), "Strongest predictor in the model \u2014 correlation +0.74 with today's range. Today's open is read at 9:30 and unlocks the sharper 9:32 model: entering it by hand is worth about 3% tighter strikes and changes the strike row on roughly 1 session in 5. Leave it blank if you do not have it.") : model && model.full ? "Yesterday's VIX1D close, entered by hand. Strongest predictor in the model — correlation +0.74 with today's range." : "Waiting on VIX1D. The feed pulls I:VIX1D automatically; if your plan excludes indices, take yesterday's close from cboe.com. Without it the app falls back to a weaker prior-day fit and strike distances become approximate."), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 10,
+      padding: "5px 10px",
+      borderRadius: 2,
+      letterSpacing: "0.08em",
+      background: isSkipDay ? T.wild + "22" : "transparent",
+      border: `1px solid ${isSkipDay ? T.wild + "88" : "transparent"}`,
+      color: isSkipDay ? T.wild : "transparent"
+    }
+  }, isSkipDay ? "FED DAY - SKIP" : "")), /*#__PURE__*/React.createElement("div", {
+    style: sectionLabel
+  }, /*#__PURE__*/React.createElement("span", null, "Today's estimate"), /*#__PURE__*/React.createElement("div", {
+    style: hairline
+  }), model && /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 10,
+      color: T.dimmer,
+      letterSpacing: 0
+    }
+  }, model.stage, model.asOf ? ` · data to ${model.asOf} ET` : "")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: T.panel,
+      border: `1px solid ${T.ruleSoft}`,
+      borderRadius: 4,
+      padding: "20px 18px",
+      marginBottom: 14
+    }
+  }, !model ? /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: T.dimmer,
+      fontSize: 13,
+      padding: "16px 0",
+      textAlign: "center",
+      lineHeight: 1.7
+    }
+  }, status === "ok" ? "Waiting on premarket bars. Before 4:00 ET there is nothing to measure yet." : "Connect a data key, or switch on Manual entry in Settings.") : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "baseline",
+      gap: 16,
+      flexWrap: "wrap",
+      marginBottom: 20
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 44,
+      lineHeight: 1,
+      color: BANDS[bandOf(model.est)].color,
+      letterSpacing: "-0.03em"
+    }
+  }, model.est.toFixed(3), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 19,
+      color: T.dim
+    }
+  }, "%")), /*#__PURE__*/React.createElement(BandTag, {
+    idx: bandOf(model.est),
+    size: "lg"
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 10.5,
+      color: T.dimmer
+    }
+  }, "± ", (model.mae ?? 0.33).toFixed(2), " typical · 5-yr mean ", MEAN_RANGE.toFixed(2), "%")), revision && revision.flagged && /*#__PURE__*/React.createElement("div", {
+    style: {
+      border: `1px solid ${T.wild}77`,
+      background: T.wild + "18",
+      borderRadius: 3,
+      padding: "12px 14px",
+      marginTop: 18,
+      marginBottom: 4
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: SANS,
+      fontSize: 9.5,
+      letterSpacing: "0.16em",
+      textTransform: "uppercase",
+      color: T.wild,
+      marginBottom: 7
+    }
+  }, "Estimate revised down " + revision.dropPct + "% since the open"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 11,
+      color: T.text,
+      lineHeight: 1.75
+    }
+  }, "Quiet morning after an elevated open (", revision.open.toFixed(2), "% → ", model.est.toFixed(2), "%). The model has narrowed the strike, but days like this have not actually calmed down — they expand later."), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 11,
+      color: T.wild,
+      lineHeight: 1.75,
+      marginTop: 9
+    }
+  }, "ENTERING AFTER 10:00: take the 95% column only if it pays $50 or more on $500 collateral. If it pays less, stay on the 90% row and require at least $60. ALREADY IN from 9:46: hold \u2014 your strike was set off the elevated open and price has not approached it; these days finish safer, not riskier (6% vs 12% touch)."), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 10,
+      color: T.dimmer,
+      lineHeight: 1.7,
+      marginTop: 8
+    }
+  }, "Fires on ~1 session in 4, mornings only. Breakeven credit at the 95% column is $50.53 \u2014 below that the lost premium costs more than the losses avoided. Applies to a strike opened AT this checkpoint, not one opened at 9:46.")), /*#__PURE__*/React.createElement(Spectrum, {
+    markers: markers
+  }), probs && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 22
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 9,
+      letterSpacing: "0.18em",
+      textTransform: "uppercase",
+      color: T.dimmer,
+      marginBottom: 10
+    }
+  }, "Where today lands"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 6
+    }
+  }, BANDS.map((b, i) => /*#__PURE__*/React.createElement("div", {
+    key: b.key,
+    style: {
+      flex: 1
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      height: 5,
+      background: b.color,
+      opacity: 0.25 + probs[i] * 0.75,
+      borderRadius: 1,
+      marginBottom: 7
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 15,
+      color: b.color
+    }
+  }, Math.round(probs[i] * 100), "%"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 8.5,
+      letterSpacing: "0.13em",
+      textTransform: "uppercase",
+      color: T.dimmer,
+      marginTop: 3
+    }
+  }, b.label))))))), model && /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: T.panelAlt,
+      border: `1px solid ${T.ruleSoft}`,
+      borderRadius: 4,
+      padding: 18,
+      marginBottom: 26
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 9,
+      letterSpacing: "0.18em",
+      textTransform: "uppercase",
+      color: T.dimmer,
+      marginBottom: 14
+    }
+  }, "Projected levels"), !projection ? /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: T.dimmer,
+      fontSize: 12.5
+    }
+  }, "Levels appear once the 9:30 open prints.") : /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 26,
+      flexWrap: "wrap"
+    }
+  }, [["HIGH", fmtPx(projection.hi), T.text], ["LOW", fmtPx(projection.lo), T.text], ["SPAN", "$" + projection.dollars.toFixed(2), T.live]].map(([l, v, c]) => /*#__PURE__*/React.createElement("div", {
+    key: l
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 9,
+      letterSpacing: "0.14em",
+      color: T.dimmer,
+      marginBottom: 5
+    }
+  }, l), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 23,
+      color: c
+    }
+  }, v)))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 10.5,
+      color: T.dimmer,
+      marginTop: 14,
+      lineHeight: 1.7
+    }
+  }, "Span could reasonably run $", projection.spanLow.toFixed(2), "–$", projection.spanHigh.toFixed(2), ". Levels assume the open sits mid-range, true on average but wide day to day."))), /*#__PURE__*/React.createElement("div", {
+    style: sectionLabel
+  }, /*#__PURE__*/React.createElement("span", null, "Strike distances"), /*#__PURE__*/React.createElement("div", {
+    style: hairline
+  }), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 10,
+      color: T.dimmer,
+      letterSpacing: 0
+    }
+  }, "never-touched basis")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: T.panel,
+      border: `1px solid ${T.ruleSoft}`,
+      borderRadius: 4,
+      padding: "16px 15px",
+      marginBottom: 30
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8,
+      marginBottom: 14,
+      flexWrap: "wrap"
+    }
+  }, [["930", "9:30"], ["946", "9:46"], ["1201", "12:01"], ["201", "2:01"]].map(([k, l]) => /*#__PURE__*/React.createElement("button", {
+    key: k,
+    onClick: () => setDistEntry(k),
+    style: {
+      ...btn(distEntry === k),
+      padding: "8px 14px",
+      fontSize: 10
+    }
+  }, l)), /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 10
+    }
+  }), [["call", "Calls"], ["put", "Puts"]].map(([k, l]) => /*#__PURE__*/React.createElement("button", {
+    key: k,
+    onClick: () => setDistSide(k),
+    style: {
+      ...btn(distSide === k),
+      padding: "8px 14px",
+      fontSize: 10
+    }
+  }, l))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      overflowX: "auto"
+    }
+  }, /*#__PURE__*/React.createElement("table", {
+    style: {
+      width: "100%",
+      borderCollapse: "collapse",
+      minWidth: 380
+    }
+  }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, ["Est. range", "85% safe", "90% safe", "95% safe"].map((h, i) => /*#__PURE__*/React.createElement("th", {
+    key: h,
+    style: {
+      textAlign: i === 0 ? "left" : "right",
+      fontFamily: SANS,
+      fontSize: 8.5,
+      letterSpacing: "0.16em",
+      textTransform: "uppercase",
+      color: T.dimmer,
+      padding: "9px 12px",
+      borderBottom: `1px solid ${T.ruleSoft}`,
+      fontWeight: 500
+    }
+  }, h)))), /*#__PURE__*/React.createElement("tbody", null, DIST_BANDS.map((b, i) => {
+    const row = OTM_TABLES[distEntry][distSide][i];
+    const active = model && bandIndexOf(model.est) === i;
+    return /*#__PURE__*/React.createElement("tr", {
+      key: b.label,
+      style: {
+        background: active ? T.live + "14" : "transparent"
+      }
+    }, /*#__PURE__*/React.createElement("td", {
+      style: {
+        fontFamily: MONO,
+        fontSize: 11.5,
+        color: active ? T.live : T.dim,
+        padding: "9px 12px",
+        borderBottom: `1px solid ${T.ruleSoft}`,
+        whiteSpace: "nowrap"
+      }
+    }, active ? "▸ " : "", b.label), row.map((v, j) => /*#__PURE__*/React.createElement("td", {
+      key: j,
+      style: {
+        fontFamily: MONO,
+        fontSize: 12,
+        color: active ? T.text : T.dim,
+        textAlign: "right",
+        padding: "9px 12px",
+        borderBottom: `1px solid ${T.ruleSoft}`,
+        whiteSpace: "nowrap"
+      }
+    }, v.toFixed(2), "%", active && todayOpen ? /*#__PURE__*/React.createElement("span", {
+      style: {
+        color: T.dimmer,
+        marginLeft: 6,
+        fontSize: 10.5
+      }
+    }, (distSide === "call" ? todayOpen * (1 + v / 100) : todayOpen * (1 - v / 100)).toFixed(0)) : null)));
+  })))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 10,
+      color: T.dimmer,
+      marginTop: 12,
+      lineHeight: 1.8
+    }
+  }, "% OTM from the entry-time price so the strike is never traded through. 90% safe \u2248 tagged one day in ten; holding to expiration instead of exiting on touch wins ~94% at that level. 9:30 keys off the pre-open estimate, 9:46 off the 9:32 update, 12:01 off the 12:00 checkpoint, 2:01 off the 2:00 completion ratio. Highlighted row follows today's estimate", todayOpen ? "; small figures are strikes off the 9:30 open \u2014 exact for 9:30, approximate later" : "", ". Fed days are excluded. Later entries need far less distance but credit collapses through the session, so distance and premium pull opposite ways."), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 30
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: sectionLabel
+  }, /*#__PURE__*/React.createElement("span", null, "Entry schedule"), /*#__PURE__*/React.createElement("div", {
+    style: hairline
+  }), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 10,
+      color: T.dimmer,
+      letterSpacing: 0
+    }
+  }, STRATEGY[struct].rule)), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8,
+      marginBottom: 14,
+      flexWrap: "wrap",
+      alignItems: "center"
+    }
+  }, STRUCT_KEYS.map(k => /*#__PURE__*/React.createElement("button", {
+    key: k,
+    onClick: () => pickStruct(k),
+    style: {
+      ...btn(struct === k),
+      padding: "8px 14px",
+      fontSize: 10
+    }
+  }, STRATEGY[k].label)), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 10,
+      color: T.dimmer,
+      marginLeft: 4
+    }
+  }, "same sessions, same fills \u2014 only the structure differs")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      overflowX: "auto"
+    }
+  }, /*#__PURE__*/React.createElement("table", {
+    style: {
+      width: "100%",
+      borderCollapse: "collapse",
+      fontFamily: MONO,
+      fontSize: 11.5
+    }
+  }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", {
+    style: {
+      color: T.dimmer,
+      fontSize: 9,
+      letterSpacing: "0.1em",
+      textTransform: "uppercase"
+    }
+  }, /*#__PURE__*/React.createElement("th", {
+    style: {
+      textAlign: "left",
+      padding: "0 8px 7px 0"
+    }
+  }, "Band"), /*#__PURE__*/React.createElement("th", {
+    style: {
+      textAlign: "right",
+      padding: "0 8px 7px 0"
+    }
+  }, "Enter"), /*#__PURE__*/React.createElement("th", {
+    style: {
+      textAlign: "right",
+      padding: "0 8px 7px 0"
+    }
+  }, "Win rate"), /*#__PURE__*/React.createElement("th", {
+    style: {
+      textAlign: "right",
+      padding: "0 8px 7px 0"
+    }
+  }, "95% range"), /*#__PURE__*/React.createElement("th", {
+    style: {
+      textAlign: "right",
+      padding: "0 8px 7px 0"
+    }
+  }, "Credit"), /*#__PURE__*/React.createElement("th", {
+    style: {
+      textAlign: "right",
+      padding: "0 8px 7px 0"
+    }
+  }, "Win / Loss"), /*#__PURE__*/React.createElement("th", {
+    style: {
+      textAlign: "right",
+      padding: "0 0 7px 0"
+    }
+  }, "Sessions"))), /*#__PURE__*/React.createElement("tbody", null, STRATEGY[struct].sched.map((r, i) => {
+    const live = model && bandOf(model.est) === i;
+    const td = {
+      padding: "7px 8px 7px 0",
+      textAlign: "right",
+      borderTop: `1px solid ${T.ruleSoft}`
+    };
+    return /*#__PURE__*/React.createElement("tr", {
+      key: r.band,
+      style: {
+        background: live ? T.panelAlt : "transparent",
+        color: live ? T.text : T.dim
+      }
+    }, /*#__PURE__*/React.createElement("td", {
+      style: {
+        padding: "7px 8px 7px 0",
+        borderTop: `1px solid ${T.ruleSoft}`
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        color: BANDS[i].color,
+        fontFamily: SANS,
+        fontSize: 10,
+        letterSpacing: "0.08em"
+      }
+    }, r.band)), /*#__PURE__*/React.createElement("td", {
+      style: {
+        ...td,
+        color: live ? T.live : T.dim,
+        fontSize: 13
+      }
+    }, r.label), /*#__PURE__*/React.createElement("td", {
+      style: td
+    }, r.win.toFixed(1) + "%"), /*#__PURE__*/React.createElement("td", {
+      style: {
+        ...td,
+        color: T.dimmer,
+        fontSize: 10.5
+      }
+    }, r.lo.toFixed(0) + "-" + r.hi.toFixed(0) + "%"), /*#__PURE__*/React.createElement("td", {
+      style: td
+    }, "$" + r.credit), /*#__PURE__*/React.createElement("td", {
+      style: {
+        ...td,
+        fontSize: 10.5
+      }
+    }, "+$" + r.avgWin + " / \u2212$" + Math.abs(r.avgLoss)), /*#__PURE__*/React.createElement("td", {
+      style: {
+        ...td,
+        padding: "7px 0",
+        color: T.dimmer
+      }
+    }, r.n));
+  })))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 10.5,
+      color: T.live,
+      lineHeight: 1.75,
+      marginTop: 10
+    }
+  }, STRATEGY[struct].pooled), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 10.5,
+      color: T.dimmer,
+      lineHeight: 1.75,
+      marginTop: 10
+    }
+  }, STRATEGY[struct].how), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 10.5,
+      color: T.dimmer,
+      lineHeight: 1.75,
+      marginTop: 9
+    }
+  }, "Why the times differ: a bigger forecast needs more of the session burned off before the credit covers the risk. Entering an AGITATED day at 11:00 rather than 12:30 drops the win rate from 68% to 59%, and the edge with it. The times are the same for both structures — they were fitted on the call spread and re-tested on the condor, and no band beat its own null on a different time."), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 10.5,
+      color: T.wild,
+      lineHeight: 1.75,
+      marginTop: 9
+    }
+  }, STRATEGY[struct].careHead + " Breakeven credit: " + STRATEGY[struct].sched.map(r => r.band + " $" + STRATEGY[struct].breakeven[r.band]).join(", ") + "; if the fill on offer is below that, skip the trade. " + STRATEGY[struct].careTail))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 9,
+      marginBottom: 30,
+      flexWrap: "wrap",
+      alignItems: "center"
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: () => fetchData(apiKey, ticker),
+    style: btn(false)
+  }, "Refresh now"), /*#__PURE__*/React.createElement("button", {
+    onClick: saveToday,
+    style: btn(true)
+  }, "Log session"), note && /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 11,
+      color: T.live
+    }
+  }, note)), /*#__PURE__*/React.createElement("div", {
+    style: sectionLabel
+  }, /*#__PURE__*/React.createElement("span", null, "Log"), /*#__PURE__*/React.createElement("div", {
+    style: hairline
+  }), recentAvg != null && /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 10,
+      color: T.dimmer,
+      letterSpacing: 0
+    }
+  }, recent.length, "-day avg ", recentAvg.toFixed(3), "%")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: T.panel,
+      border: `1px solid ${T.ruleSoft}`,
+      borderRadius: 4,
+      overflow: "hidden"
+    }
+  }, recent.length === 0 ? /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: 22,
+      color: T.dimmer,
+      fontSize: 12.5,
+      lineHeight: 1.7
+    }
+  }, "Nothing logged yet. Save a session and it builds a rolling month here, with the estimate stored alongside what actually happened.") : /*#__PURE__*/React.createElement("div", {
+    style: {
+      overflowX: "auto"
+    }
+  }, /*#__PURE__*/React.createElement("table", {
+    style: {
+      width: "100%",
+      borderCollapse: "collapse",
+      minWidth: 520
+    }
+  }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, ["Date", "Prior", "Premkt", "To 11", "Est.", "Actual", "Band"].map(h => /*#__PURE__*/React.createElement("th", {
+    key: h,
+    style: {
+      textAlign: h === "Date" || h === "Band" ? "left" : "right",
+      fontFamily: SANS,
+      fontSize: 8.5,
+      letterSpacing: "0.16em",
+      textTransform: "uppercase",
+      color: T.dimmer,
+      padding: "11px 12px",
+      borderBottom: `1px solid ${T.ruleSoft}`,
+      fontWeight: 500
+    }
+  }, h)))), /*#__PURE__*/React.createElement("tbody", null, recent.map(r => /*#__PURE__*/React.createElement("tr", {
+    key: r.date + r.ticker
+  }, /*#__PURE__*/React.createElement("td", {
+    style: {
+      fontFamily: MONO,
+      fontSize: 11.5,
+      color: T.dim,
+      padding: "10px 12px",
+      borderBottom: `1px solid ${T.ruleSoft}`
+    }
+  }, r.date.slice(5)), [r.priorRange, r.preRange, r.to11Range, r.est, r.actual].map((v, i) => /*#__PURE__*/React.createElement("td", {
+    key: i,
+    style: {
+      fontFamily: MONO,
+      fontSize: 11.5,
+      color: i >= 3 ? T.text : T.dim,
+      textAlign: "right",
+      padding: "10px 12px",
+      borderBottom: `1px solid ${T.ruleSoft}`
+    }
+  }, v == null ? "—" : v.toFixed(2))), /*#__PURE__*/React.createElement("td", {
+    style: {
+      padding: "10px 12px",
+      borderBottom: `1px solid ${T.ruleSoft}`
+    }
+  }, /*#__PURE__*/React.createElement(BandTag, {
+    idx: r.band
+  })))))))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 24,
+      paddingTop: 15,
+      borderTop: `1px solid ${T.ruleSoft}`,
+      fontFamily: MONO,
+      fontSize: 10,
+      color: T.dimmer,
+      lineHeight: 1.9
+    }
+  }, "Bands are quartiles of a 5-year SPY sample (1,254 sessions): calm below ", THRESH[0].toFixed(2), "%, normal to", " ", THRESH[1].toFixed(2), "%, agitated to ", THRESH[2].toFixed(2), "%, wild above. Estimates are log-space fits driven mainly by VIX1D, refit on 1,030 non-Fed sessions (May 2022 onward). Walk-forward error: \u00b10.31pp pre-open, \u00b10.25pp by 11:00, \u00b10.13pp by 2:00. The band is right outright about half the time and within one band ~91% pre-open, rising to ~98% by 2:00; it lands two bands off on roughly 9% of pre-open days and 4% by 11:00, so the strike row can be two rows too tight. VIX1D alone out-predicts prior-day and premarket range combined, so prior-day range is shown as context but is not a model input. Fed decision days are excluded from every fit and flagged for skipping.")));
+}
+  try {
+    ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(RangeDeskLive));
+  } catch (e) {
+    document.getElementById('root').innerHTML =
+      '<div style="color:#C0533C;font:13px ui-monospace,monospace;padding:28px;line-height:1.8">'
+      + 'Failed to start: ' + (e && e.message ? e.message : e) + '</div>';
+  }
+})();
+</script>
+</body>
+</html>
